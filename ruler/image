@@ -1,0 +1,179 @@
+#!/bin/bash
+
+set -eE
+trap 'echo Error: in $0 on line $LINENO' ERR
+
+cleanup_loopdev() {
+    local loop="$1"
+
+    sync --file-system
+    sync
+
+    sleep 1
+
+    if [ -b "${loop}" ]; then
+        for part in "${loop}"p*; do
+            if mnt=$(findmnt -n -o target -S "$part"); then
+                umount "${mnt}"
+            fi
+        done
+        losetup -d "${loop}"
+    fi
+}
+
+wait_loopdev() {
+    local loop="$1"
+    local seconds="$2"
+
+    until test $((seconds--)) -eq 0 -o -b "${loop}"; do sleep 1; done
+
+    ((++seconds))
+
+    ls -l "${loop}" &> /dev/null
+}
+
+
+export RELASE_NAME="Ubuntu 24.10 (Oracular Oriole)"
+export RELASE_VERSION="24.10"
+
+export PROJECT=ubuntu-cpc
+export SUITE=oracular
+export FLAVOR=server
+
+export ARCH=arm64
+export IMAGEFORMAT=none
+export IMAGE_TARGETS=none
+
+export DEBIAN_FRONTEND=noninteractive
+export DEBCONF_NONINTERACTIVE_SEEN=true
+export LC_ALL=C
+export LC_CTYPE=C
+export LANGUAGE=C
+export LANG=C
+
+export SYSROOT=aarch64
+
+
+
+
+echo '# Create an empty RAMDISK image'
+img="ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.img"
+img_length="$(( $(wc -c < "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz") / 1024 / 1024 ))"
+truncate -s "$(( img_length + 2048 ))M" "${img}"
+
+echo '# Create loop device for RAMDISK image'
+loop="$(losetup -f)"
+losetup -P "${loop}" "${img}"
+RAMDISK="${loop}"
+
+echo '# Cleanup loopdev on early exit'
+trap 'cleanup_loopdev ${loop}' EXIT
+
+
+echo '# Ensure RAMDISK is not mounted'
+MOUNTRAM=/tmp/mnt
+umount "${RAMDISK}"* 2> /dev/null || true
+umount ${MOUNTRAM}/* 2> /dev/null || true
+mkdir -p ${MOUNTRAM}
+
+echo '# Setup partition table'
+dd if=/dev/zero of="${RAMDISK}" count=4096 bs=512
+parted --script "${RAMDISK}" \
+mklabel gpt \
+mkpart primary fat32 16MiB 20MiB \
+mkpart primary ext4 20MiB 100%
+
+echo '# Create partitions'
+{
+    echo "t"
+    echo "1"
+    echo "EBD0A0A2-B9E5-4433-87C0-68B6B72699C7"
+    echo "t"
+    echo "2"
+    echo "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+    echo "w"
+} | fdisk "${RAMDISK}" &> /dev/null || true
+
+partprobe "${RAMDISK}"
+
+PARTITION_CHAR="$(if [[ ${RAMDISK: -1} == [0-9] ]]; then echo p; fi)"
+
+sleep 1
+
+wait_loopdev "${RAMDISK}${PARTITION_CHAR}2" 60 || {
+    echo "Failed to create ${RAMDISK}${PARTITION_CHAR}1 in time"
+    exit 1
+}
+
+sleep 1
+
+wait_loopdev "${RAMDISK}${PARTITION_CHAR}1" 60 || {
+    echo "Failed to create ${RAMDISK}${PARTITION_CHAR}1 in time"
+    exit 1
+}
+
+sleep 1
+
+echo '# Generate random uuid for BOOT'
+BOOT_UUID=$(uuidgen | head -c8)
+
+echo '# Generate random uuid for ROOT'
+ROOT_UUID=$(uuidgen)
+
+echo '# Create filesystems on partitions'
+mkfs.vfat -i "${BOOT_UUID}" -F32 -n CIDATA "${RAMDISK}${PARTITION_CHAR}1"
+dd if=/dev/zero of="${RAMDISK}${PARTITION_CHAR}2" bs=1KB count=10 > /dev/null
+mkfs.ext4 -U "${ROOT_UUID}" -L cloudimg "${RAMDISK}${PARTITION_CHAR}2"
+
+echo '# Mount partitions'
+mkdir -p ${MOUNTRAM}/{config,system}
+mount "${RAMDISK}${PARTITION_CHAR}1" ${MOUNTRAM}/config
+mount "${RAMDISK}${PARTITION_CHAR}2" ${MOUNTRAM}/system
+
+
+echo '# Copy the rootfs to root partition'
+tar -xpf "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz" -C ${MOUNTRAM}/system
+
+echo '# Copy cloud init config for server image'
+cp ./cloud/{meta-data,user-data,network-config} ${MOUNTRAM}/config
+
+
+echo '# Create fstab entries'
+echo "# <file system>     <mount point>  <type>  <options>   <dump>  <fsck>" > ${MOUNTRAM}/system/etc/fstab
+echo "UUID=${ROOT_UUID,,} /              ext4    defaults,x-systemd.growfs    0       1" >> ${MOUNTRAM}/system/etc/fstab
+
+
+echo '# Write bootloader to RAMDISK image'
+if [ -f "${MOUNTRAM}/system/usr/lib/u-boot/u-boot-rockchip.bin" ]; then
+    echo '## /system/usr/lib/u-boot/u-boot-rockchip.bin'
+    dd if="${MOUNTRAM}/system/usr/lib/u-boot/u-boot-rockchip.bin" of="${loop}" seek=1 bs=32k conv=fsync
+else
+    echo '## /system/usr/lib/u-boot/idbloader.img'
+    dd if="${MOUNTRAM}/system/usr/lib/u-boot/idbloader.img" of="${loop}" seek=64 conv=notrunc
+    dd if="${MOUNTRAM}/system/usr/lib/u-boot/u-boot.itb" of="${loop}" seek=16384 conv=notrunc
+fi
+
+
+chroot ${MOUNTRAM}/system /bin/bash -c "u-boot-update"
+
+
+sync --file-system
+sync
+
+echo '# Umount partitions'
+umount "${RAMDISK}${PARTITION_CHAR}1"
+umount "${RAMDISK}${PARTITION_CHAR}2" 2> /dev/null || true
+
+echo '# Remove loop device'
+losetup -d "${loop}"
+
+
+echo -e "\nCompressing $(basename "${img}.xz")\n"
+xz -6 --force --keep --quiet --threads=0 "${img}"
+rm -f "${img}"
+
+
+echo "Bye Bye!!"
+
+trap '' EXIT
+exit 0

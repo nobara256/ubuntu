@@ -1,0 +1,130 @@
+# This is a basic workflow to help you get started with Actions
+
+name: BUILD-KERNEL
+
+# Controls when the workflow will run
+on:
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+    # This workflow contains a single job called "kernel-build"
+    kernel-release:
+        # The type of runner that the job will run on
+        runs-on: ubuntu-24.04
+        outputs:
+            xarray: ${{ steps.gen-array.outputs.array }}
+
+        # Steps represent a sequence of tasks that will be executed as part of the job
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            - uses: actions/checkout@v4
+
+            - name: Fetch kernel release from kernel.org
+              id: gen-array
+              run: python3 ruler/package.py "$(curl -s https://www.kernel.org/releases.json)" >> $GITHUB_OUTPUT
+
+    # This workflow contains a single job called "kernel-build"
+    kernel-package:
+        # The type of runner that the job will run on
+        runs-on: ubuntu-24.04
+        needs: get-kernel-release
+
+        strategy:
+            matrix: ${{ fromJSON(needs.kernel-release.outputs.xarray) }}
+
+        # Steps represent a sequence of tasks that will be executed as part of the job
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            - uses: actions/checkout@v4
+
+            - name: Install dependencies.
+              run: |
+                sudo apt update
+                sudo apt upgrade -y
+                sudo apt install -y build-essential gcc-aarch64-linux-gnu bison  devscripts        \
+                qemu-user-static qemu-system-arm qemu-efi-aarch64 u-boot-tools binfmt-support      \
+                debootstrap flex libssl-dev bc rsync kmod cpio xz-utils fakeroot parted            \
+                udev dosfstools uuid-runtime git-lfs device-tree-compiler python3 dctrl-tools      \
+                python-is-python3 fdisk bc debhelper python3-pyelftools python3-setuptools         \
+                python3-distutils-extra python3-pkg-resources swig libfdt-dev libpython3-dev dctrl-tools
+
+            - name: Downloading kernel source package (${{ matrix.version }})
+              run: wget --quiet ${{ matrix.source }}
+
+            - name: Extracting kernel source package (${{ matrix.version }})
+              run: tar -xf $(basename ${{ matrix.source }})
+
+            - name: Patching kernel source package (${{ matrix.version }})
+              run: |
+                patch --strip=1 --directory=linux-${KERNEL_VERSION} < patcher/kernel/package.patch                                   # Patches by Joshua
+                patch --strip=1 --directory=linux-${KERNEL_VERSION} < patcher/kernel/overlay.patch                                   # Patch kernel overlay loading
+                cp -f overlay/rk3588.overlay.d/rk3588* linux-${KERNEL_VERSION}/arch/arm64/boot/dts/rockchip                          # Copy rk3588 dtbs by Joshua
+                cp -f overlay/kernel.cfg.d/kernel-6.13-rk.cfg linux-${KERNEL_VERSION}/debian.rockchip/config/config.common.ubuntu    # Add basic kernel configs
+                dch                                                             \
+                  --create                                                      \
+                  --package linux-rockchip                                      \
+                  --changelog linux-${KERNEL_VERSION}/debian.rockchip/changelog \
+                  --distribution oracular                                       \
+                  --urgency medium                                              \
+                  -v $($KERNEL_MAINLINE && echo ${KERNEL_VERSION%-*}.0 || echo $KERNEL_VERSION)-${KERNEL_RELEASE_DATE//-} \
+                  "Linux $KERNEL_VERSION ubuntu-rockchip oracular" # Get dch to create the changelog.
+              shell: bash
+              env:
+                ARCH: arm64
+                DEBEMAIL: nobara@kurokawa
+                DEBFULLNAME: Kurokawa Nobara
+                DEB_BUILD_OPTIONS: nocheck
+                KERNEL_MAINLINE: ${{ matrix.moniker == "mainline" }}
+                KERNEL_VERSION: ${{ matrix.version }}
+                KERNEL_RELEASE_DATE: ${{ matrix.released.isodate }}
+
+            - name: Build kernel package (${{ matrix.version }})
+              run: fakeroot debian/rules clean defaultconfigs binary-headers binary-rockchip do_mainline_build=true
+              shell: bash
+              working-directory: linux-${{ matrix.version }}
+              env:
+                ARCH: arm64
+                CROSS_COMPILE: aarch64-linux-gnu-
+                CC: aarch64-linux-gnu-gcc
+                LANG: C
+                DEB_BUILD_OPTIONS: nocheck
+
+            - name: Build a meta package (rk-${{ matrix.version }})
+              run: |
+                mkdir -p dummy-package/DEBIAN
+                (
+                  echo "Package: ${KERNEL_META_PACKAGE}"
+                  echo "Source: ${KERNEL_META_PACKAGE}"
+                  echo "Version: $($KERNEL_MAINLINE && echo ${KERNEL_VERSION%-*}.0 || echo $KERNEL_VERSION)-${KERNEL_RELEASE_DATE//-}"
+                  echo "Section: main"
+                  echo "Priority: standard"
+                  echo "Architecture: ${ARCH}"
+                  for PACKAGE in linux-*${KERNEL_VERSION}*.deb; do
+                    DED_ARRAY+="${PACKAGE%%_*}, "
+                  done
+                  echo "Depends: ${DED_ARRAY%,*}"
+                  echo "Rules-Requires-Root: no"
+                  echo "Maintainer: ${DEBFULLNAME} <${DEBEMAIL}>"
+                  echo "Description: A Meta Package for upstream linux-rockchip packages."
+                ) > dummy-package/DEBIAN/control
+                dpkg-deb --build dummy-package "${KERNEL_META_PACKAGE}_$($KERNEL_MAINLINE && echo ${KERNEL_VERSION%-*}.0 || echo $KERNEL_VERSION)-${KERNEL_RELEASE_DATE//-}_arm64.deb"
+              shell: bash
+              env:
+                ARCH: arm64
+                DEBEMAIL: nobara@kurokawa
+                DEBFULLNAME: Kurokawa Nobara
+                DEB_BUILD_OPTIONS: nocheck
+                KERNEL_META_PACKAGE: linux-rk
+                KERNEL_MAINLINE: ${{ matrix.moniker == "mainline" }}
+                KERNEL_VERSION: ${{ matrix.version }}
+                KERNEL_RELEASE_DATE: ${{ matrix.released.isodate }}
+
+            - name: Upload packages (${{ matrix.version }})
+              uses: actions/upload-artifact@v4.5.0
+              with:
+                name: linux-rk-${{ matrix.version }}_arm64
+                path: linux-*${{ matrix.version }}*.deb
+                compression-level: 0
+                if-no-files-found: error

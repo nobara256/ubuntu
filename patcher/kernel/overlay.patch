@@ -1,0 +1,11 @@
+--- x/scripts/Makefile.dtbs    2024-12-22 21:22:21.000000000 +0000
++++ y/scripts/Makefile.dtbs    2024-12-26 09:02:58.166359541 +0000
+@@ -122,7 +122,7 @@
+ quiet_cmd_dtc = DTC $(quiet_dtb_check_tag) $@
+       cmd_dtc = \
+ 	$(HOSTCC) -E $(dtc_cpp_flags) -x assembler-with-cpp -o $(dtc-tmp) $< ; \
+-	$(DTC) -o $@ -b 0 $(addprefix -i,$(dir $<) $(DTC_INCLUDE)) \
++	$(DTC) -@ -o $@ -b 0 $(addprefix -i,$(dir $<) $(DTC_INCLUDE)) \
+ 	       $(DTC_FLAGS) -d $(depfile).dtc.tmp $(dtc-tmp) ; \
+ 	cat $(depfile).pre.tmp $(depfile).dtc.tmp > $(depfile) \
+ 	$(cmd_dtb_check)
