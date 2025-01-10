@@ -29,7 +29,7 @@ jobs:
     kernel-package:
         # The type of runner that the job will run on
         runs-on: ubuntu-24.04
-        needs: get-kernel-release
+        needs: kernel-release
 
         strategy:
             matrix: ${{ fromJSON(needs.kernel-release.outputs.xarray) }}
