@@ -76,7 +76,7 @@ jobs:
                 DEBEMAIL: nobara@kurokawa
                 DEBFULLNAME: Kurokawa Nobara
                 DEB_BUILD_OPTIONS: nocheck
-                KERNEL_MAINLINE: ${{ matrix.moniker == mainline }}
+                KERNEL_MAINLINE: ${{ matrix.moniker == 'mainline' }}
                 KERNEL_VERSION: ${{ matrix.version }}
                 KERNEL_RELEASE_DATE: ${{ matrix.released.isodate }}
 
@@ -117,7 +117,7 @@ jobs:
                 DEBFULLNAME: Kurokawa Nobara
                 DEB_BUILD_OPTIONS: nocheck
                 KERNEL_META_PACKAGE: linux-rk
-                KERNEL_MAINLINE: ${{ matrix.moniker == mainline }}
+                KERNEL_MAINLINE: ${{ matrix.moniker == 'mainline' }}
                 KERNEL_VERSION: ${{ matrix.version }}
                 KERNEL_RELEASE_DATE: ${{ matrix.released.isodate }}
 
