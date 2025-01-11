@@ -79,9 +79,9 @@ debootstrap      \
 attach_MOUNTPOINT $SYSROOT
 
 # Update, Upgrade, Add repositories.
-# chroot $SYSROOT apt update
-# chroot $SYSROOT apt -y upgrade
-# chroot $SYSROOT apt -y dist-upgrade
+chroot $SYSROOT apt update
+chroot $SYSROOT apt -y upgrade
+chroot $SYSROOT apt -y dist-upgrade
 chroot $SYSROOT apt -y install apt-utils software-properties-common python3-launchpadlib
 chroot $SYSROOT add-apt-repository -y ppa:jjriek/rockchip          # We need Joshua's repo.
 chroot $SYSROOT add-apt-repository -y ppa:oibaf/graphics-drivers   # We need the upstream mesa repo.
