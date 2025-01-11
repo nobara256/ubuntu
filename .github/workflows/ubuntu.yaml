@@ -22,14 +22,15 @@ jobs:
             - name: Build a Ubuntu server system and image.
               run: |
                 sudo ./ruler/ubuntu
-                sodo ./ruler/image
+                # sodo ./ruler/image
 
               shell: bash
 
             - name: Upload ubuntu image.
               uses: actions/upload-artifact@v4.5.0
               with:
-                name: ubuntu.rootfs
-                path: ./ubuntu*.img
+                name: ubuntu-image
+                path: ./ubuntu*.tar.xz
+                # path: ./ubuntu*.img.xz
                 compression-level: 0
                 if-no-files-found: error

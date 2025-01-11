@@ -135,7 +135,7 @@ echo '# Copy the rootfs to root partition'
 tar -xpf "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz" -C ${MOUNTRAM}/system
 
 echo '# Copy cloud init config for server image'
-cp ./cloud/{meta-data,user-data,network-config} ${MOUNTRAM}/config
+cp ./overlay/cloud/{meta-data,user-data,network-config} ${MOUNTRAM}/config
 
 
 echo '# Create fstab entries'
