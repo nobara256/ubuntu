@@ -92,17 +92,19 @@ chroot $SYSROOT apt -y install ubuntu-server-rockchip u-boot-orangepi-5-plus u-b
 
 
 #### Adding my personal kernel repo ####
-patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/nobara.repo.patch
-chroot $SYSROOT apt update
-chroot $SYSROOT apt install linux-rockchip
+## Note: IPv6 don't work on github!
+# patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/nobara.repo.patch
+# chroot $SYSROOT apt update
+# chroot $SYSROOT apt install linux-rockchip
 
 
 # # Create a package directory and make it available inside the $SYSROOT
 # chroot $SYSROOT /bin/bash -c "mkdir /tmp/package"
-# mount -b package $SYSROOT/tmp/package
+# mount -b package $SYSROOT/tmp/package # detach_MOUNTPOINT would do the unmounting.
 
 # # Install the kernel packages
-# chroot $SYSROOT /bin/bash -c "dpkg -i /tmp/package/linux-*6.13*.deb"
+# chroot $SYSROOT /bin/bash -c "dpkg -i /tmp/package/linux-*.deb"
+
 
 chroot $SYSROOT update-initramfs -u
 
