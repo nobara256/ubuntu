@@ -23,7 +23,8 @@ jobs:
 
             - name: Fetch kernel release from kernel.org
               id: gen-array
-              run: python3 ruler/package.py "$(curl -s https://www.kernel.org/releases.json)" >> $GITHUB_OUTPUT
+              run: |
+                echo array={ '"include"': $(curl -s https://www.kernel.org/releases.json | jq '[.releases[] | select((.moniker=="mainline") or (.moniker=="stable"))]') } >> $GITHUB_OUTPUT
 
     # This workflow contains a single job called "kernel-build"
     kernel-package:
@@ -101,7 +102,7 @@ jobs:
                   echo "Section: main"
                   echo "Priority: standard"
                   echo "Architecture: ${ARCH}"
-                  for PACKAGE in linux-*${KERNEL_VERSION}*.deb; do
+                  for PACKAGE in linux-*$($KERNEL_MAINLINE && echo ${KERNEL_VERSION%-*}.0 || echo $KERNEL_VERSION)*.deb; do
                     DED_ARRAY+="${PACKAGE%%_*}, "
                   done
                   echo "Depends: ${DED_ARRAY%,*}"
