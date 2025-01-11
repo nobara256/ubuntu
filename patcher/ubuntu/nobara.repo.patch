@@ -1,0 +1,41 @@
+--- x/etc/apt/sources.list.d/nobara.sources	2025-01-11 14:04:09.493999869 +0530
++++ y/etc/apt/sources.list.d/nobara.sources	2025-01-11 15:49:44.082742496 +0530
+@@ -0,0 +1,38 @@
++Types: deb
++URIs: http://desktop.nobara.in/ubuntu/
++Suites: oracular
++Components: nobara
++Architectures: arm64
++Trusted: yes
++By-Hash: no
++Signed-By:
++ -----BEGIN PGP PUBLIC KEY BLOCK-----
++ .
++ mQENBGd47isBCAC+qJ3LXhJAskCjkTdNo43+xxq/LJpJVt9dAmA711DhE5w6BM6F
++ 5FevNYcFn3FkoC6czrxqoYS4rFWxuR6y2f+S6L2Zvaw7QKZVV5cv7hIg4GhnC6R4
++ CCA7yDKNaUsxVI2jzVXB53sXXrEnJmosHOIVIxhb0zlnhtCvZWGdyynd8zsi1j0/
++ hKeP48V1lwxs9FC6Ce9afkiQ5xAE09gYNvKavIJ91FHjb3SbDMjqkFNkvNU7s1pw
++ RfbJEuZ1tKIxRd/OLo9rjlV28ctxJRQKT7pa98lM2fyk6PRr1qxteIuCz2OVrWqj
++ P7T4r50VD1kdzeLlNKiKOs1r9/qnlCkZbgeDABEBAAG0Gkt1cm9rYXdhIDxub2Jh
++ cmFAa3Vyb2thd2E+iQFRBBMBCgA7FiEEFiyc6xd9c8XOC7ometkVxlxgKCQFAmd4
++ 7isCGwMFCwkIBwICIgIGFQoJCAsCBBYCAwECHgcCF4AACgkQetkVxlxgKCSZNwf8
++ DpfDxL+hcSSV0JKcdO9YEbojTkNiWQz0CyxxFKlWWRwjPatCXBD+3ZsQQcdq4jCz
++ uJcW22Zy47QhaD+XX68PPeEckUHkcNQraLuEyZnuzLlkcVzKDXX6FU/xAcWftTmh
++ KQe5iBekDtHNZrUYbpNXpx+7tu0xAlgsXknn28mVqQ3xpyvNqzvb7R47E41fVVFy
++ Qbri7Aa0sJyzwHTUnYtVMYdA8u6Ri87hM+ZbdaE5nhWQIT71trnFDCZVOl6gQ1ne
++ IWmlzVcYu9brJjOst6oYBFdW20mpSHfgsfXRfe+MmrFobMedRTfegTxHq3abFYSf
++ Jy2XkEFQgMB+agzFOR8WCrkBDQRneO4rAQgAwUNr5Bep8fXnPXBCqAVQqd3OLbfo
++ //XhDjj/LNSO7yov53rezXRfORT8dUIzXM5/fDFq4ZaAT63ufdoXFvUF9Lu8V4Rb
++ IMoEWS3OgfVwGl1KmPO3XnGrOoKlgxIXNQCyto3WTI34M3T4ET2JtQuQYQh0N9Nv
++ xMl99WJOgRggsKMhI7v+nMMjIuzDXkEvOy3/vm1UJbaJIZQ/RIatHZnparUP6c2I
++ pKCzMIQ0Ywzbbvzlxp6G8TuYGlG+2mxgT9g16WZ9hNHiCIM9pdSQY2cG70Qnqt5t
++ gXSOLUqdK7vjR3g6G+gpPyAyicLa66byAKTBkGNeKxLnIxo8sFzAysr7pQARAQAB
++ iQE2BBgBCgAgFiEEFiyc6xd9c8XOC7ometkVxlxgKCQFAmd47isCGwwACgkQetkV
++ xlxgKCQadQf+JuFlvnvdQG4NHqwYETvxSLk4njetDteiJt3rh2c0Lg9bciJJkVmh
++ XWd3AQBNzyft8u92bQQ/JcLvyksvXqDp6mLHa6CQGoNaHSRHNGAuCAChL6mnF3Ab
++ ZY7wGD4CVVcVb5nfP+A9XeXp79EOzpYoxPlw1uUqb6d2Q89dXqwVSPfQAiURvM+s
++ GDWWodncLOHd/2g966f4y9j8fgqMAhyhkIP3xH+y4fzVvF08H1G/w/6f/m6ecStb
++ a7QEDLYaJcGOgGmNqXrC8bnLw2HMcCiMCaReiSuqadQ3Y69y7c5gE5ueTDKVJ5IV
++ joj/3Cu8qoz/248cQlj65M0MtwWWQvOTIQ==
++ =Lml1
++ -----END PGP PUBLIC KEY BLOCK-----
