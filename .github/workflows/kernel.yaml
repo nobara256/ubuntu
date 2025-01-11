@@ -124,10 +124,10 @@ jobs:
                 KERNEL_VERSION: ${{ matrix.version }}
                 KERNEL_RELEASE_DATE: ${{ matrix.released.isodate }}
 
-            - name: Upload packages (${{ matrix.version }})
+            - name: Upload packages
               uses: actions/upload-artifact@v4.5.0
               with:
-                name: linux-rk-${{ matrix.version }}_arm64
-                path: linux-*${{ matrix.version }}*.deb
+                name: kernel-package-${{ matrix.version }}_arm64
+                path: linux-*.deb
                 compression-level: 0
                 if-no-files-found: error
