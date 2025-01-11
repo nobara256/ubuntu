@@ -21,8 +21,8 @@ jobs:
 
             - name: Build a Ubuntu server system and image.
               run: |
-                sudo ./minimal-system.sh
-                sodo ./minimal-image.sh
+                sudo ./ruler/ubuntu
+                sodo ./ruler/image
 
               shell: bash
 

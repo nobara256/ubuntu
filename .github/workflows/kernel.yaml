@@ -14,15 +14,15 @@ jobs:
         # The type of runner that the job will run on
         runs-on: ubuntu-24.04
         outputs:
-            xarray: ${{ steps.gen-array.outputs.array }}
+            xarray: ${{ steps.release-array.outputs.array }}
 
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
             - uses: actions/checkout@v4
 
-            - name: Fetch kernel release from kernel.org
-              id: gen-array
+            - name: Fetch release from kernel.org
+              id: release-array
               run: |
                 echo array={ '"include"': $(curl -s https://www.kernel.org/releases.json | jq '[.releases[] | select((.moniker=="mainline") or (.moniker=="stable"))]') } >> $GITHUB_OUTPUT
 
@@ -31,6 +31,8 @@ jobs:
         # The type of runner that the job will run on
         runs-on: ubuntu-24.04
         needs: kernel-release
+
+        name: ${{ matrix.moniker }}-${{ matrix.version }}
 
         strategy:
             matrix: ${{ fromJSON(needs.kernel-release.outputs.xarray) }}
@@ -51,13 +53,13 @@ jobs:
                 python-is-python3 fdisk bc debhelper python3-pyelftools python3-setuptools         \
                 python3-distutils-extra python3-pkg-resources swig libfdt-dev libpython3-dev dctrl-tools
 
-            - name: Downloading kernel source package (${{ matrix.version }})
+            - name: Downloading kernel source package.
               run: wget --quiet ${{ matrix.source }}
 
-            - name: Extracting kernel source package (${{ matrix.version }})
+            - name: Extracting kernel source package.
               run: tar -xf $(basename ${{ matrix.source }})
 
-            - name: Patching kernel source package (${{ matrix.version }})
+            - name: Patching kernel source package.
               run: |
                 patch --strip=1 --directory=linux-${KERNEL_VERSION} < patcher/kernel/package.patch                                   # Patches by Joshua
                 patch --strip=1 --directory=linux-${KERNEL_VERSION} < patcher/kernel/overlay.patch                                   # Patch kernel overlay loading
@@ -81,7 +83,7 @@ jobs:
                 KERNEL_VERSION: ${{ matrix.version }}
                 KERNEL_RELEASE_DATE: ${{ matrix.released.isodate }}
 
-            - name: Build kernel package (${{ matrix.version }})
+            - name: Build kernel package.
               run: fakeroot debian/rules clean defaultconfigs binary-headers binary-rockchip do_mainline_build=true
               shell: bash
               working-directory: linux-${{ matrix.version }}
@@ -92,7 +94,7 @@ jobs:
                 LANG: C
                 DEB_BUILD_OPTIONS: nocheck
 
-            - name: Build a meta package (rk-${{ matrix.version }})
+            - name: Build a meta package.
               run: |
                 mkdir -p dummy-package/DEBIAN
                 (
@@ -117,7 +119,7 @@ jobs:
                 DEBEMAIL: nobara@kurokawa
                 DEBFULLNAME: Kurokawa Nobara
                 DEB_BUILD_OPTIONS: nocheck
-                KERNEL_META_PACKAGE: linux-rk
+                KERNEL_META_PACKAGE: linux-rockchip
                 KERNEL_MAINLINE: ${{ matrix.moniker == 'mainline' }}
                 KERNEL_VERSION: ${{ matrix.version }}
                 KERNEL_RELEASE_DATE: ${{ matrix.released.isodate }}

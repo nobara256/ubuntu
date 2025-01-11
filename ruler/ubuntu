@@ -92,18 +92,17 @@ chroot $SYSROOT apt -y install ubuntu-server-rockchip u-boot-orangepi-5-plus u-b
 
 
 #### Adding my personal kernel repo ####
-patch --strip=1 --directory=$SYSROOT < patcher/nobara-repo.patch
+patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/nobara.repo.patch
 chroot $SYSROOT apt update
 chroot $SYSROOT apt install nobara-kernel
 
 
-# Create a package directory and make it available inside the $SYSROOT
-chroot $SYSROOT /bin/bash -c "mkdir /tmp/package"
-mount -b package $SYSROOT/tmp/package
+# # Create a package directory and make it available inside the $SYSROOT
+# chroot $SYSROOT /bin/bash -c "mkdir /tmp/package"
+# mount -b package $SYSROOT/tmp/package
 
-
-# Install the kernel packages
-chroot $SYSROOT /bin/bash -c "dpkg -i /tmp/package/linux-*6.13*.deb"
+# # Install the kernel packages
+# chroot $SYSROOT /bin/bash -c "dpkg -i /tmp/package/linux-*6.13*.deb"
 
 chroot $SYSROOT update-initramfs -u
 
@@ -114,7 +113,7 @@ chroot $SYSROOT apt clean
 
 
 #### Here Be Monkeys ####
-patch --strip=1 --directory=$SYSROOT < patcher/cloudimg.patch
+patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/cloud.patch
 
 
 chroot $SYSROOT ssh-keygen -A
