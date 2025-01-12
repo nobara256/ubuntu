@@ -32,8 +32,10 @@ jobs:
 
             - name: Build a Ubuntu server system and image.
               run: |
-                sudo ./ruler/ubuntu
-                # sodo ./ruler/image
+                # sudo ./ruler/ubuntu
+                gh run download --repo nobara256/ubuntu 12731539512
+                mv ./ubuntu-image/*.tar.xz .
+                sodo ./ruler/image
 
               shell: bash
 
@@ -41,7 +43,7 @@ jobs:
               uses: actions/upload-artifact@v4.5.0
               with:
                 name: ubuntu-image
-                path: ./ubuntu*.tar.xz
-                # path: ./ubuntu*.img.xz
+                # path: ./ubuntu*.tar.xz
+                path: ./ubuntu*.img.xz
                 compression-level: 0
                 if-no-files-found: error

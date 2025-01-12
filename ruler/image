@@ -58,8 +58,11 @@ export SYSROOT=aarch64
 
 echo '# Create an empty RAMDISK image'
 img="ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.img"
-img_length="$(( $(wc -c < "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz") / 1024 / 1024 ))"
-truncate -s "$(( img_length + 2048 ))M" "${img}"
+
+# img_length="$(( $(wc -c < "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz") / 1024 / 1024 ))"
+# truncate -s "$(( img_length + 2048 ))M" "${img}"
+
+truncate -s 5120M "${img}"
 
 echo '# Create loop device for RAMDISK image'
 loop="$(losetup -f)"
@@ -69,11 +72,11 @@ RAMDISK="${loop}"
 echo '# Cleanup loopdev on early exit'
 trap 'cleanup_loopdev ${loop}' EXIT
 
-
-echo '# Ensure RAMDISK is not mounted'
 MOUNTRAM=/tmp/mnt
-umount "${RAMDISK}"* 2> /dev/null || true
-umount ${MOUNTRAM}/* 2> /dev/null || true
+
+# echo '# Ensure RAMDISK is not mounted'
+# umount "${RAMDISK}"* 2> /dev/null || true
+# umount ${MOUNTRAM}/* 2> /dev/null || true
 mkdir -p ${MOUNTRAM}
 
 echo '# Setup partition table'
@@ -123,7 +126,7 @@ ROOT_UUID=$(uuidgen)
 echo '# Create filesystems on partitions'
 mkfs.vfat -i "${BOOT_UUID}" -F32 -n CIDATA "${RAMDISK}${PARTITION_CHAR}1"
 dd if=/dev/zero of="${RAMDISK}${PARTITION_CHAR}2" bs=1KB count=10 > /dev/null
-mkfs.ext4 -U "${ROOT_UUID}" -L cloudimg "${RAMDISK}${PARTITION_CHAR}2"
+mkfs.ext4 -U "${ROOT_UUID}" -L system "${RAMDISK}${PARTITION_CHAR}2"
 
 echo '# Mount partitions'
 mkdir -p ${MOUNTRAM}/{config,system}
@@ -132,15 +135,15 @@ mount "${RAMDISK}${PARTITION_CHAR}2" ${MOUNTRAM}/system
 
 
 echo '# Copy the rootfs to root partition'
-tar -xpf "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz" -C ${MOUNTRAM}/system
+tar -xpf "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz" --directory=${MOUNTRAM}/system
 
 echo '# Copy cloud init config for server image'
 cp ./overlay/cloud/{meta-data,user-data,network-config} ${MOUNTRAM}/config
 
 
 echo '# Create fstab entries'
-echo "# <file system>     <mount point>  <type>  <options>   <dump>  <fsck>" > ${MOUNTRAM}/system/etc/fstab
-echo "UUID=${ROOT_UUID,,} /              ext4    defaults,x-systemd.growfs    0       1" >> ${MOUNTRAM}/system/etc/fstab
+echo "# <file system>     <mount point>  <type>  <options>                    <dump>  <fsck>"  > ${MOUNTRAM}/system/etc/fstab
+echo "UUID=${ROOT_UUID,,} /              ext4    defaults,x-systemd.growfs    0       1"      >> ${MOUNTRAM}/system/etc/fstab
 
 
 echo '# Write bootloader to RAMDISK image'
@@ -154,7 +157,13 @@ else
 fi
 
 
+echo '# Update u-boot'
 chroot ${MOUNTRAM}/system /bin/bash -c "u-boot-update"
+
+
+#### We don't need it here as well ####
+# echo '# Update existing initramfs'
+# chroot ${MOUNTRAM}/system /bin/bash -c "update-initramfs -u"
 
 
 sync --file-system
