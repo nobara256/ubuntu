@@ -134,7 +134,7 @@ mount "${RAMDISK}${PARTITION_CHAR}1" ${MOUNTRAM}/config
 mount "${RAMDISK}${PARTITION_CHAR}2" ${MOUNTRAM}/system
 
 
-echo '# Copy the rootfs to root partition'
+echo '# Extract the sysroot on the system partition'
 tar -xpf "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz" --directory=${MOUNTRAM}/system
 
 echo '# Copy cloud init config for server image'
