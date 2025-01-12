@@ -38,6 +38,8 @@ jobs:
                 sodo ./ruler/image
 
               shell: bash
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Upload ubuntu image.
               uses: actions/upload-artifact@v4.5.0
