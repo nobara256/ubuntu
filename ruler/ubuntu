@@ -103,8 +103,8 @@ patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/nobara.repo.patch
 
 #### Adding my kernel packages ####
 chroot $SYSROOT apt update
-chroot $SYSROOT apt -y upgrade
 chroot $SYSROOT apt -y install linux-rockchip
+chroot $SYSROOT apt -y upgrade
 
 #### Probably don't need this in here ####
 # chroot $SYSROOT update-initramfs -u
