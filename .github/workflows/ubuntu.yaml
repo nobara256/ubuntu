@@ -22,7 +22,8 @@ jobs:
             - name: Install dependencies.
               run: |
                 sudo apt update
-                # sudo apt upgrade -y
+                sudo apt upgrade -y
+                sudo apt install -y qemu-user-static qemu-system-arm qemu-efi-aarch64 u-boot-tools
                 # sudo apt install -y build-essential gcc-aarch64-linux-gnu bison  devscripts        \
                 # qemu-user-static qemu-system-arm qemu-efi-aarch64 u-boot-tools binfmt-support      \
                 # debootstrap flex libssl-dev bc rsync kmod cpio xz-utils fakeroot parted            \
@@ -35,7 +36,6 @@ jobs:
                 # sudo ./ruler/ubuntu
                 gh run download --repo nobara256/ubuntu 12731539512
                 mv ./ubuntu-image/*.tar.xz .
-                ls
                 sudo ./ruler/image
 
               shell: bash

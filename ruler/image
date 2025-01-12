@@ -123,7 +123,7 @@ BOOT_UUID=$(uuidgen | head -c8)
 echo '# Generate random uuid for ROOT'
 ROOT_UUID=$(uuidgen)
 
-echo '# Create filesystems on partitions'
+echo '# Format config and system'
 mkfs.vfat -i "${BOOT_UUID}" -F32 -n CIDATA "${RAMDISK}${PARTITION_CHAR}1"
 dd if=/dev/zero of="${RAMDISK}${PARTITION_CHAR}2" bs=1KB count=10 > /dev/null
 mkfs.ext4 -U "${ROOT_UUID}" -L system "${RAMDISK}${PARTITION_CHAR}2"
@@ -142,8 +142,8 @@ cp ./overlay/cloud/{meta-data,user-data,network-config} ${MOUNTRAM}/config
 
 
 echo '# Create fstab entries'
-echo "# <file system>     <mount point>  <type>  <options>                    <dump>  <fsck>"  > ${MOUNTRAM}/system/etc/fstab
-echo "UUID=${ROOT_UUID,,} /              ext4    defaults,x-systemd.growfs    0       1"      >> ${MOUNTRAM}/system/etc/fstab
+echo "# <file system>                        <mount point>  <type>  <options>                    <dump>  <fsck>"  > ${MOUNTRAM}/system/etc/fstab
+echo "UUID=${ROOT_UUID,,}                    /              ext4    defaults,x-systemd.growfs    0       1"      >> ${MOUNTRAM}/system/etc/fstab
 
 
 echo '# Write bootloader to RAMDISK image'
