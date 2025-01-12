@@ -115,7 +115,14 @@ chroot $SYSROOT apt clean
 
 
 #### Here Be Monkeys ####
-patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/cloud.patch
+
+# Apply HOSTNAME
+echo "ubuntu" > $SYSROOT/etc/hostname
+
+# patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/server.patch
+
+
+
 
 
 chroot $SYSROOT ssh-keygen -A
