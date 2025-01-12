@@ -32,7 +32,7 @@ jobs:
         runs-on: ubuntu-24.04
         needs: kernel-release
 
-        name: ${{ matrix.moniker }}-${{ matrix.version }}
+        name: kernel-${{ matrix.version }}-${{ matrix.moniker }}
 
         strategy:
             matrix: ${{ fromJSON(needs.kernel-release.outputs.xarray) }}

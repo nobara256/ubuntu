@@ -1,0 +1,49 @@
+--- x/etc/hosts	2025-01-12 09:10:20.394349272 +0530
++++ y/etc/hosts	2024-04-02 07:09:25.000000000 +0530
+@@ -1,5 +1,9 @@
+-127.0.0.1	localhost
+-::1		localhost ip6-localhost ip6-loopback
+-ff02::1		ip6-allnodes
+-ff02::2		ip6-allrouters
++127.0.0.1 localhost
+
++# The following lines are desirable for IPv6 capable hosts
++::1 ip6-localhost ip6-loopback
++fe00::0 ip6-localnet
++ff00::0 ip6-mcastprefix
++ff02::1 ip6-allnodes
++ff02::2 ip6-allrouters
++ff02::3 ip6-allhosts
+
+--- x/etc/adduser.conf	2024-08-26 14:45:01.000000000 +0530
++++ y/etc/adduser.conf	2025-01-03 06:49:13.000000000 +0530
+@@ -97,13 +97,13 @@
+ # list of groups that new non-system users will be added to
+ # if ADD_EXTRA_GROUPS is non-zero or set on the command line.
+ # Default: EXTRA_GROUPS="users"
+-#EXTRA_GROUPS="users"
++EXTRA_GROUPS="video"
+
+ # Setting this to something other than 0 will cause adduser to add
+ # newly created non-system users to the list of groups defined by
+ # EXTRA_GROUPS.
+ # Default: ADD_EXTRA_GROUPS=0
+-#ADD_EXTRA_GROUPS=0
++ADD_EXTRA_GROUPS=1
+
+ # use extrausers by default
+ #USE_EXTRAUSERS=1
+
+--- x/etc/kernel/cmdline	1970-01-01 05:30:00.000000000 +0530
++++ y/etc/kernel/cmdline	2025-01-03 06:49:13.000000000 +0530
+@@ -0,0 +1 @@
++rootwait rw console=ttyS2,1500000 console=tty1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory
+\ No newline at end of file
+
+--- x/usr/share/u-boot-menu/conf.d/ubuntu.conf	1970-01-01 05:30:00.000000000 +0530
++++ y/usr/share/u-boot-menu/conf.d/ubuntu.conf	2025-01-03 06:49:13.000000000 +0530
+@@ -0,0 +1,3 @@
++U_BOOT_PROMPT="1"
++U_BOOT_PARAMETERS="$(cat /etc/kernel/cmdline)"
++U_BOOT_TIMEOUT="20"
+
