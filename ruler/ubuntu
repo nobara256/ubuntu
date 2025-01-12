@@ -71,6 +71,7 @@ mkdir $SYSROOT
 debootstrap      \
     --arch=$ARCH \
     --components=main,universe,multiverse,restricted \
+    --include=cloud-init,bash-completion,apt-utils,software-properties-common,python3-launchpadlib \
     oracular \
     $SYSROOT \
     "http://ports.ubuntu.com/ubuntu-ports"
@@ -87,16 +88,13 @@ attach_MOUNTPOINT $SYSROOT
 chroot $SYSROOT apt update
 chroot $SYSROOT apt -y upgrade
 chroot $SYSROOT apt -y dist-upgrade
-chroot $SYSROOT apt -y install apt-utils software-properties-common python3-launchpadlib
 chroot $SYSROOT add-apt-repository -y ppa:jjriek/rockchip          # We need Joshua's repo.
 chroot $SYSROOT add-apt-repository -y ppa:oibaf/graphics-drivers   # We need the upstream mesa repo.
 chroot $SYSROOT apt update
 # chroot $SYSROOT apt -y upgrade
 chroot $SYSROOT apt -y install ubuntu-server-rockchip u-boot-orangepi-5-plus u-boot-tools u-boot-menu \
                                linux-firmware cloud-initramfs-growroot grub-efi-arm64 initramfs-tools \
-                               mesa-vdpau-drivers mesa-va-drivers mesa-vulkan-drivers vulkan-tools    \
-                               cloud-init bash-completion
-
+                               mesa-vdpau-drivers mesa-va-drivers mesa-vulkan-drivers vulkan-tools
 
 #### Here Be Monkeys ####
 patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/server-1.patch
