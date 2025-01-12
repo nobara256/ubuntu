@@ -34,7 +34,7 @@ jobs:
               run: |
                 # sudo ./ruler/ubuntu
                 gh run download --repo nobara256/ubuntu 12731539512
-                # mv ./ubuntu-image/*.tar.xz .
+                mv ./ubuntu-image/*.tar.xz .
                 # sodo ./ruler/image
 
               shell: bash
