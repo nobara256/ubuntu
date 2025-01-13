@@ -24,7 +24,7 @@ jobs:
             - name: Fetch release from kernel.org
               id: release-array
               run: |
-                echo array={ '"include"': $(curl -s https://www.kernel.org/releases.json | jq '[.releases[] | select((.moniker=="mainline") or (.moniker=="stable"))]') } >> $GITHUB_OUTPUT
+                echo array={ '"include"': $(curl -s https://www.kernel.org/releases.json | jq '[.releases[] | select((.moniker=="mainline") or (.moniker=="stable")) | select(.version!="6.12.9")]') } >> $GITHUB_OUTPUT
 
     # This workflow contains a single job called "kernel-build"
     kernel-package:

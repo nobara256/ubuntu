@@ -66,7 +66,7 @@ export SYSROOT=aarch64
 
 
 
-# Create a stock sysroot directory and populate it with debootstrap.
+# Create a SYSROOT directory and populate it with debootstrap.
 mkdir $SYSROOT
 debootstrap      \
     --arch=$ARCH \
@@ -81,7 +81,7 @@ debootstrap      \
 echo "ubuntu" > $SYSROOT/etc/hostname
 
 
-# Attach sysroot.
+# Attach SYSROOT.
 attach_MOUNTPOINT $SYSROOT
 
 # Update, Upgrade, Add repositories.
@@ -118,13 +118,13 @@ chroot $SYSROOT apt clean
 chroot $SYSROOT ssh-keygen -A
 
 #### We should be done by now ####
-# Detach sysroot.
+# Detach SYSROOT.
 detach_MOUNTPOINT $SYSROOT
 
-# Package sysroot.
+# Package SYSROOT.
 (cd $SYSROOT &&  tar -p -c --sort=name --xattrs ./*) | xz -3 -T0 > "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz"
 
-# Delete the sysroot directory
+# Delete the SYSROOT directory
 rm -rf $SYSROOT
 
 echo "Bye Bye!!"
