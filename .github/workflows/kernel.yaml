@@ -23,8 +23,28 @@ jobs:
 
             - name: Fetch release from kernel.org
               id: release-array
+              # Select the mainline and stable releases.
+              # Always produce a "6.12.9-1009.9" syntax release string.
+              # Always produce a "kernel-6.12_arm64.cfg" syntax config string.
               run: |
-                echo array={ '"include"': $(curl -s https://www.kernel.org/releases.json | jq '[.releases[] | select((.moniker=="mainline") or (.moniker=="stable")) | select(.version!="6.12.9")]') } >> $GITHUB_OUTPUT
+                echo array=$(
+                  curl -s https://www.kernel.org/releases.json | jq '{
+                    include: [
+                      .releases[] |
+                        select((.moniker=="mainline") or (.moniker=="stable"))
+                    ] | map(
+                      .kernelcfg=(.version | sub("(?<x>\\d+\\.\\d+)(.*)"; "kernel-\(.x)_arm64.cfg")) |
+                      .release=(
+                        if(.version | test("\\d+\\.\\d+\\.\\d+"))
+                        then
+                          (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)-100\(.y).\(.y)"))
+                        else
+                          (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0-100\(.y).\(.y)"))
+                        end
+                      )
+                    )
+                  }'
+                ) >> $GITHUB_OUTPUT
 
     # This workflow contains a single job called "kernel-build"
     kernel-package:
@@ -32,7 +52,7 @@ jobs:
         runs-on: ubuntu-24.04
         needs: kernel-release
 
-        name: kernel-${{ matrix.version }}-${{ matrix.moniker }}
+        name: kernel-${{ matrix.release }}
 
         strategy:
             matrix: ${{ fromJSON(needs.kernel-release.outputs.xarray) }}
@@ -61,27 +81,30 @@ jobs:
 
             - name: Patching kernel source package.
               run: |
-                patch --strip=1 --directory=linux-${KERNEL_VERSION} < patcher/kernel/package.patch                                   # Patches by Joshua
-                patch --strip=1 --directory=linux-${KERNEL_VERSION} < patcher/kernel/overlay.patch                                   # Patch kernel overlay loading
-                cp -f overlay/rk3588.overlay.d/rk3588* linux-${KERNEL_VERSION}/arch/arm64/boot/dts/rockchip                          # Copy rk3588 dtbs by Joshua
-                cp -f overlay/kernel.cfg.d/kernel-6.13-rk.cfg linux-${KERNEL_VERSION}/debian.rockchip/config/config.common.ubuntu    # Add basic kernel configs
+                patch --strip=1 --directory=linux-${KERNEL_VERSION} < patcher/kernel/package.patch                                 # Patches by Joshua
+                patch --strip=1 --directory=linux-${KERNEL_VERSION} < patcher/kernel/overlay.patch                                 # Patch kernel overlay loading
+                cp -f overlay/rk3588.overlay.d/rk3588* linux-${KERNEL_VERSION}/arch/arm64/boot/dts/rockchip                        # Copy rk3588 dtbs by Joshua
+                cp -f overlay/kernel.cfg.d/${KERNEL_CONFIG} linux-${KERNEL_VERSION}/debian.rockchip/config/config.common.ubuntu    # Add basic kernel configs
                 dch                                                             \
                   --create                                                      \
-                  --package linux-rockchip                                      \
+                  --package ${KERNEL_PACKAGE}                                   \
                   --changelog linux-${KERNEL_VERSION}/debian.rockchip/changelog \
-                  --distribution oracular                                       \
+                  --distribution ${KERNEL_DISTRIBUTION}                         \
                   --urgency medium                                              \
-                  -v $($KERNEL_MAINLINE && echo ${KERNEL_VERSION%-*}.0 || echo $KERNEL_VERSION)-${KERNEL_RELEASE_DATE//-} \
-                  "Linux $KERNEL_VERSION ubuntu-rockchip oracular" # Get dch to create the changelog.
+                  -v $KERNEL_RELEASE                                            \
+                  "Linux ${KERNEL_RELEASE} ubuntu-rockchip ${KERNEL_DISTRIBUTION}" # Get dch to create the changelog.
               shell: bash
               env:
                 ARCH: arm64
                 DEBEMAIL: nobara@kurokawa
                 DEBFULLNAME: Kurokawa Nobara
                 DEB_BUILD_OPTIONS: nocheck
-                KERNEL_MAINLINE: ${{ matrix.moniker == 'mainline' }}
+                KERNEL_PACKAGE: linux-rockchip
+                KERNEL_DISTRIBUTION: oracular
                 KERNEL_VERSION: ${{ matrix.version }}
+                KERNEL_RELEASE: ${{ matrix.release }}
                 KERNEL_RELEASE_DATE: ${{ matrix.released.isodate }}
+                KERNEL_CONFIG: ${{ matrix.kernelcfg }}
 
             - name: Build kernel package.
               run: fakeroot debian/rules clean defaultconfigs binary-headers binary-rockchip do_mainline_build=true
@@ -94,34 +117,34 @@ jobs:
                 LANG: C
                 DEB_BUILD_OPTIONS: nocheck
 
-            - name: Build a meta package.
+            - name: Build a dummy meta package.
               run: |
                 mkdir -p dummy-package/DEBIAN
                 (
-                  echo "Package: ${KERNEL_META_PACKAGE}"
-                  echo "Source: ${KERNEL_META_PACKAGE}"
-                  echo "Version: $($KERNEL_MAINLINE && echo ${KERNEL_VERSION%-*}.0 || echo $KERNEL_VERSION)-${KERNEL_RELEASE_DATE//-}"
+                  echo "Package: ${KERNEL_PACKAGE}"
+                  echo "Source: ${KERNEL_PACKAGE}"
+                  echo "Version: ${KERNEL_RELEASE}"
                   echo "Section: main"
                   echo "Priority: standard"
                   echo "Architecture: ${ARCH}"
-                  for PACKAGE in linux-*$($KERNEL_MAINLINE && echo ${KERNEL_VERSION%-*}.0 || echo $KERNEL_VERSION)*.deb; do
+                  for PACKAGE in linux-*${KERNEL_RELEASE}*.deb; do
                     DED_ARRAY+="${PACKAGE%%_*}, "
                   done
                   echo "Depends: ${DED_ARRAY%,*}"
                   echo "Rules-Requires-Root: no"
                   echo "Maintainer: ${DEBFULLNAME} <${DEBEMAIL}>"
-                  echo "Description: A Meta Package for upstream linux-rockchip packages."
+                  echo "Description: A Meta Package for upstream ${KERNEL_PACKAGE} packages."
                 ) > dummy-package/DEBIAN/control
-                dpkg-deb --build dummy-package "${KERNEL_META_PACKAGE}_$($KERNEL_MAINLINE && echo ${KERNEL_VERSION%-*}.0 || echo $KERNEL_VERSION)-${KERNEL_RELEASE_DATE//-}_arm64.deb"
+                dpkg-deb --build dummy-package "${KERNEL_PACKAGE}_${KERNEL_RELEASE}_arm64.deb"
               shell: bash
               env:
                 ARCH: arm64
                 DEBEMAIL: nobara@kurokawa
                 DEBFULLNAME: Kurokawa Nobara
                 DEB_BUILD_OPTIONS: nocheck
-                KERNEL_META_PACKAGE: linux-rockchip
-                KERNEL_MAINLINE: ${{ matrix.moniker == 'mainline' }}
+                KERNEL_PACKAGE: linux-rockchip
                 KERNEL_VERSION: ${{ matrix.version }}
+                KERNEL_RELEASE: ${{ matrix.release }}
                 KERNEL_RELEASE_DATE: ${{ matrix.released.isodate }}
 
             - name: Upload packages
