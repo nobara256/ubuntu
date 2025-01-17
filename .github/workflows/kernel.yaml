@@ -37,7 +37,7 @@ jobs:
                       .release=(
                         if(.version | test("\\d+\\.\\d+\\.\\d+"))
                         then
-                          (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)-100\(.y).\(.y)"))
+                          (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)-200\(.y).\(.y)"))
                         else
                           (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0-100\(.y).\(.y)"))
                         end
@@ -150,7 +150,7 @@ jobs:
             - name: Upload packages
               uses: actions/upload-artifact@v4.5.0
               with:
-                name: kernel-package-${{ matrix.version }}_arm64
+                name: kernel-package-${{ matrix.release }}_arm64
                 path: linux-*.deb
                 compression-level: 0
                 if-no-files-found: error
