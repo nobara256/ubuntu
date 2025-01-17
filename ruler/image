@@ -3,6 +3,48 @@
 set -eE
 trap 'echo Error: in $0 on line $LINENO' ERR
 
+
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Please run as root"
+    exit 1
+fi
+
+
+attach_MOUNTPOINT() {
+    local MOUNTPOINT="$1"
+
+    if [ ! -c /dev/mem ]; then
+        mknod -m 660 /dev/mem c 1 1
+        chown root:kmem /dev/mem
+    fi
+
+    mount dev-live -t devtmpfs "$MOUNTPOINT/dev"
+    mount devpts-live -t devpts -o nodev,nosuid "$MOUNTPOINT/dev/pts"
+    mount proc-live -t proc "$MOUNTPOINT/proc"
+    mount sysfs-live -t sysfs "$MOUNTPOINT/sys"
+    mount securityfs -t securityfs "$MOUNTPOINT/sys/kernel/security"
+
+    mount -t cgroup2 none "$MOUNTPOINT/sys/fs/cgroup"
+    mount -t tmpfs none "$MOUNTPOINT/tmp"
+    mount -t tmpfs none "$MOUNTPOINT/var/lib/apt/lists"
+    mount -t tmpfs none "$MOUNTPOINT/var/cache/apt"
+}
+
+detach_MOUNTPOINT() {
+    # Reverse the operations from setup_MOUNTPOINT
+    local MOUNTPOINT
+    MOUNTPOINT=$(realpath "$1")
+
+    # ensure we have exactly one trailing slash, and escape all slashes for awk
+    MOUNTPOINT_match=$(echo "$MOUNTPOINT" | sed -e's,/$,,; s,/,\\/,g;')'\/'
+    # sort -r ensures that deeper MOUNTPOINTs are unmounted first
+    awk </proc/self/mounts "\$2 ~ /$MOUNTPOINT_match/ { print \$2 }" | LC_ALL=C sort -r | while IFS= read -r submount; do
+        mount --make-private "$submount"
+        umount "$submount"
+    done
+}
+
+
 cleanup_loopdev() {
     local loop="$1"
 
