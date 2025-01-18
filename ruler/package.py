@@ -34,10 +34,15 @@ debootstrap_package_array = [
     "alsa-utils"
 ]
 
-# Package dependencies to build Pipewire & Wireplumber
+# Package dependencies [bluez pipewire wireplumber liblc3]
 pipewire_server_array = [
+    "autotools-dev",
+    "automake",
+    "build-essential",
     "cmake",
     "findutils",
+    "libtool",
+    "libltdl-dev",
     "libasound2-dev",
     "libavcodec-dev",
     "libavfilter-dev",
@@ -76,6 +81,7 @@ pipewire_server_array = [
     "pkg-config",
     "pulseaudio-utils",
     "doxygen",
+    "rtkit",
     "systemd-dev",
     "v4l-utils",
     "v4l-conf"
@@ -116,12 +122,10 @@ cross_compiler_packages = [
 
 # Extra ackages on server
 server_package_array = [
-    "build-essential",
     "gcc-arm-none-eabi",
     "android-sdk-platform-tools",
     "p7zip-full",
     "aria2",
-    "rtkit",
     "rsync",
     "mosh",
     "rfkill",
@@ -162,7 +166,7 @@ def parse_args():
         return
 
     if "--pipewire-server-packages" in argv:
-        print(" ".join(pipewire_server_array))
+        print(", ".join(pipewire_server_array))
 
         return
 
@@ -171,6 +175,11 @@ if __name__ == "__main__":
     parse_args()
     exit()
 
+
+
+# Package syntax
+
+"pipewire-server_1.2.7+nobara-2ubuntu1_arm64.deb"
 
 
 crucial_packages_array = set(debootstrap_package_array + pipewire_server_array + cross_compiler_packages + gpu_extra_package + desktop_package_array)

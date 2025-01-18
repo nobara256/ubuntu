@@ -75,8 +75,8 @@ wait_loopdev() {
 }
 
 
-export RELASE_NAME="Ubuntu 24.10 (Oracular Oriole)"
-export RELASE_VERSION="24.10"
+export UBUNTU_RELASE_NAME="Ubuntu 24.10 (Oracular Oriole)"
+export UBUNTU_RELASE_VERSION="24.10"
 
 export PROJECT=ubuntu-cpc
 export SUITE=oracular
@@ -99,9 +99,9 @@ export SYSROOT=aarch64
 
 
 echo '# Create an empty RAMDISK image'
-img="ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.img"
+img="ubuntu-${UBUNTU_RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.img"
 
-# img_length="$(( $(wc -c < "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz") / 1024 / 1024 ))"
+# img_length="$(( $(wc -c < "ubuntu-${UBUNTU_RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz") / 1024 / 1024 ))"
 # truncate -s "$(( img_length + 2048 ))M" "${img}"
 
 truncate -s 5120M "${img}"
@@ -177,7 +177,7 @@ mount "${RAMDISK}${PARTITION_CHAR}2" ${MOUNTRAM}/system
 
 
 echo '# Extract the sysroot on the system partition'
-tar -xpf "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz" --directory=${MOUNTRAM}/system
+tar -xpf "ubuntu-${UBUNTU_RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz" --directory=${MOUNTRAM}/system
 
 echo '# Copy cloud init config for server image'
 cp ./overlay/cloud/{meta-data,user-data,network-config} ${MOUNTRAM}/config

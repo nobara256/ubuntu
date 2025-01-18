@@ -43,8 +43,8 @@ detach_MOUNTPOINT() {
 }
 
 
-export RELASE_NAME="Ubuntu 24.10 (Oracular Oriole)"
-export RELASE_VERSION="24.10"
+export UBUNTU_RELASE_NAME="Ubuntu 24.10 (Oracular Oriole)"
+export UBUNTU_RELASE_VERSION="24.10"
 
 export PROJECT=ubuntu-cpc
 export SUITE=oracular
@@ -96,7 +96,7 @@ chroot $SYSROOT apt -y install ubuntu-server-rockchip u-boot-orangepi-5-plus u-b
                                linux-firmware cloud-initramfs-growroot grub-efi-arm64 initramfs-tools \
                                mesa-vdpau-drivers mesa-va-drivers mesa-vulkan-drivers vulkan-tools
 
-chroot $SYSROOT apt -y install $(python3 package.py --pipewire-server-packages)
+chroot $SYSROOT apt -y install $(python3 ./ruler/package.py --pipewire-server-packages)
 
 #### Here Be Monkeys ####
 patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/server-1.patch
@@ -124,7 +124,7 @@ chroot $SYSROOT ssh-keygen -A
 detach_MOUNTPOINT $SYSROOT
 
 # Package SYSROOT.
-(cd $SYSROOT &&  tar -p -c --sort=name --xattrs ./*) | xz -3 -T0 > "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz"
+(cd $SYSROOT &&  tar -p -c --sort=name --xattrs ./*) | xz -3 -T0 > "ubuntu-${UBUNTU_RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz"
 
 # Delete the SYSROOT directory
 rm -rf $SYSROOT
