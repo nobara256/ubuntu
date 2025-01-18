@@ -4,6 +4,7 @@ from sys import argv
 
 
 # Packages provided to debootstrap --include
+# Highly required
 debootstrap_package_array = [
     "debootstrap",
     "linux-firmware",
@@ -16,6 +17,9 @@ debootstrap_package_array = [
     "microcom",
     "nano",
     "btop",
+    # "dbus",
+    # "rfkill",
+    # "rsync",
     "iptables",
     "apt-utils",
     "software-properties-common",
@@ -38,10 +42,23 @@ debootstrap_package_array = [
     "alsa-utils"
 ]
 
+
 # Packages provided to debootstrap --exclude
+# Don't install things you don't want
 debootstrap_exclude_package_array = [
     "bluez"
 ]
+
+
+# Oibuf's gpu driver packages
+gpu_package_array = [
+    "mesa-vdpau-drivers",
+    "mesa-va-drivers",
+    "mesa-vulkan-drivers",
+    "vulkan-tools",
+    "wayland-protocols"
+]
+
 
 # Package dependencies [bluez pipewire wireplumber liblc3]
 pipewire_server_package_array = [
@@ -49,7 +66,6 @@ pipewire_server_package_array = [
     "automake",
     "build-essential",
     "cmake",
-    "findutils",
     "libtool",
     "libltdl-dev",
     "libasound2-dev",
@@ -96,15 +112,6 @@ pipewire_server_package_array = [
     "v4l-conf"
 ]
 
-# Oibuf's gpu driver packages
-gpu_package_array = [
-    "mesa-vdpau-drivers",
-    "mesa-va-drivers",
-    "mesa-vulkan-drivers",
-    "vulkan-tools",
-    "wayland-protocols"
-]
-
 
 # Cross compiler packages.
 cross_compiler_packages = [
@@ -120,6 +127,7 @@ cross_compiler_packages = [
     "gawk",
     "dkms",
     "udev",
+    "findutils",
     "dh-make",
     "debhelper",
     "devscripts",
@@ -139,15 +147,14 @@ cross_compiler_packages = [
     "qemu-efi-riscv64"
 ]
 
+
 # Extra ackages on server
 server_package_array = [
     "gcc-arm-none-eabi",
     "android-sdk-platform-tools",
     "p7zip-full",
     "aria2",
-    "rsync",
     "mosh",
-    "rfkill",
     "net-tools",
     "i2c-tools",
     "mpg123",
@@ -158,6 +165,7 @@ server_package_array = [
     "module-assistant",
     "git-lfs"
 ]
+
 
 # Extra packages on desktop
 desktop_package_array = [
@@ -191,6 +199,9 @@ def parse_args():
 
         return
 
+    if "--additional-server-packages" in argv:
+        print(" ".join(server_package_array))
+
 
 if __name__ == "__main__":
     parse_args()
@@ -198,7 +209,11 @@ if __name__ == "__main__":
 
 
 
+# xz --decompress --stdout < ubuntu-image/ubuntu-24.10-preinstalled-server-arm64.img.xz | sudo dd of=/dev/nvme0n1 bs=8M iflag=fullblock oflag=direct status=progress
+
 # Package syntax
+
+# 6.12+nobara > 6.12 > 6.12.0~rc5-GITHUB_RUN_NUMBER
 
 "pipewire-server_1.2.7+nobara-2ubuntu1_arm64.deb"
 

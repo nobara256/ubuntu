@@ -37,13 +37,13 @@ jobs:
                       .release=(
                         if(.version | test("\\d+\\.\\d+\\.\\d+"))
                         then
-                          (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)-200\(.y).\(.y)"))
+                          (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)+nobara-\($xrev)ubuntu\($yrev)"))
                         else
-                          (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0-100\(.y).\(.y)"))
+                          (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0~r\(.y)+nobara-\($xrev)ubuntu\($yrev)"))
                         end
                       )
                     )
-                  }'
+                  }' --arg xrev 2 --arg yrev $GITHUB_RUN_ATTEMPT
                 ) >> $GITHUB_OUTPUT
 
     # This workflow contains a single job called "kernel-build"

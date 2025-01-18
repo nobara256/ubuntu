@@ -70,7 +70,8 @@ export SYSROOT=aarch64
 mkdir $SYSROOT
 debootstrap      \
     --arch=$ARCH \
-    --components=main,universe,multiverse,restricted \
+    --components=main,universe,multiverse,restricted   \
+    --extra-suites=oracular-updates,oracular-backports \
     --include=$(python3 ./ruler/package.py --debootstrap-include-packages) \
     --exclude=$(python3 ./ruler/package.py --debootstrap-exclude-packages) \
     oracular \
