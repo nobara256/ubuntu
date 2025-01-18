@@ -6,6 +6,10 @@ from sys import argv
 # Packages provided to debootstrap --include
 debootstrap_package_array = [
     "debootstrap",
+    "linux-firmware",
+    "cloud-initramfs-growroot",
+    "grub-efi-arm64",
+    "initramfs-tools",
     "cloud-init",
     "git",
     "bash-completion",
@@ -34,8 +38,13 @@ debootstrap_package_array = [
     "alsa-utils"
 ]
 
+# Packages provided to debootstrap --exclude
+debootstrap_exclude_package_array = [
+    "bluez"
+]
+
 # Package dependencies [bluez pipewire wireplumber liblc3]
-pipewire_server_array = [
+pipewire_server_package_array = [
     "autotools-dev",
     "automake",
     "build-essential",
@@ -87,30 +96,40 @@ pipewire_server_array = [
     "v4l-conf"
 ]
 
+# Oibuf's gpu driver packages
+gpu_package_array = [
+    "mesa-vdpau-drivers",
+    "mesa-va-drivers",
+    "mesa-vulkan-drivers",
+    "vulkan-tools",
+    "wayland-protocols"
+]
+
+
 # Cross compiler packages.
 cross_compiler_packages = [
     "gcc-aarch64-linux-gnu",
+    "g++-aarch64-linux-gnu",
     "check",
     "flex",
-    "ncurses-dev",
     "bison",
-    "g++-aarch64-linux-gnu",
+    "bc",
     "swig",
-    "u-boot-tools",
     "kmod",
     "cpio",
+    "gawk",
+    "dkms",
+    "udev",
+    "dh-make",
+    "debhelper",
+    "devscripts",
     "fakeroot",
     "parted",
-    "udev",
+    "fdisk",
+    "ncurses-dev",
+    "u-boot-tools",
     "dosfstools",
     "uuid-runtime",
-    "fdisk",
-    "bc",
-    "dkms",
-    "gawk",
-    "dh-make",
-    "devscripts",
-    "debhelper",
     "libelf-dev",
     "binfmt-support",
     "python3-distutils-extra",
@@ -147,14 +166,6 @@ desktop_package_array = [
     "gnome-tweaks"
 ]
 
-# Oibuf's gpu driver packages
-gpu_extra_package = [
-    "mesa-vdpau-drivers",
-    "mesa-va-drivers",
-    "mesa-vulkan-drivers",
-    "vulkan-tools",
-    "wayland-protocols"
-]
 
 
 
@@ -165,8 +176,18 @@ def parse_args():
 
         return
 
+    if "--debootstrap-exclude-packages" in argv:
+        print(",".join(debootstrap_exclude_package_array))
+
+        return
+
+    if "--oibaf-gpu-packages" in argv:
+        print(" ".join(gpu_package_array))
+
+        return
+
     if "--pipewire-server-packages" in argv:
-        print(", ".join(pipewire_server_array))
+        print(" ".join(pipewire_server_package_array))
 
         return
 

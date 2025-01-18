@@ -72,6 +72,7 @@ debootstrap      \
     --arch=$ARCH \
     --components=main,universe,multiverse,restricted \
     --include=$(python3 ./ruler/package.py --debootstrap-include-packages) \
+    --exclude=$(python3 ./ruler/package.py --debootstrap-exclude-packages) \
     oracular \
     $SYSROOT \
     "http://ports.ubuntu.com/ubuntu-ports"
@@ -93,10 +94,8 @@ chroot $SYSROOT add-apt-repository -y ppa:oibaf/graphics-drivers   # We need the
 chroot $SYSROOT apt update
 chroot $SYSROOT apt -y upgrade
 chroot $SYSROOT apt -y install ubuntu-server-rockchip u-boot-orangepi-5-plus u-boot-tools u-boot-menu \
-                               linux-firmware cloud-initramfs-growroot grub-efi-arm64 initramfs-tools \
-                               mesa-vdpau-drivers mesa-va-drivers mesa-vulkan-drivers vulkan-tools
-
-chroot $SYSROOT apt -y install $(python3 ./ruler/package.py --pipewire-server-packages)
+                               $(python3 ./ruler/package.py --oibaf-gpu-packages) \
+                               $(python3 ./ruler/package.py --pipewire-server-packages)
 
 #### Here Be Monkeys ####
 patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/server-1.patch
