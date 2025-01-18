@@ -39,7 +39,7 @@ jobs:
                         then
                           (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)+nobara-\($xrev)ubuntu\($yrev)"))
                         else
-                          (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0~r\(.y)+nobara-\($xrev)ubuntu\($yrev)"))
+                          (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0+nobara-\($xrev)ubuntu\(.y)"))
                         end
                       )
                     )
