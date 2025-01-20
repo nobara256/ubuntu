@@ -44,7 +44,7 @@ jobs:
                         end
                       )
                     )
-                  }' --arg xrev 0 --arg yrev $GITHUB_RUN_ATTEMPT
+                  }' --arg xrev 1 --arg yrev $GITHUB_RUN_ATTEMPT
                 ) >> $GITHUB_OUTPUT
 
     # This workflow contains a single job called "kernel-build"
