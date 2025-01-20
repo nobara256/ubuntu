@@ -82,6 +82,46 @@ debootstrap      \
 # Apply HOSTNAME
 echo "ubuntu" > $SYSROOT/etc/hostname
 
+# Apply my package repo
+echo -n 'Types: deb
+URIs: http://ubuntu.nobara.in:8080/ubuntu/
+Suites: oracular
+Components: nobara
+Architectures: arm64
+Trusted: yes
+By-Hash: no
+Signed-By: -----BEGIN PGP PUBLIC KEY BLOCK-----
+ .
+ mQENBGeDRlgBCADUrnMWBJlr4ZfSzdczAbwIcY4aCsai0TAQUTmAE4S41dlyYvie
+ JvBSwbs3nvq9yLbSF4L68GeiFAX7U7e9MZiaD3D5HPx16jXFNCtnIxAhfRuKDZPq
+ H/wsGJIECo9XA9sQjgvDqAcrwuBp0jpeLuwr0S/AZUsmoVPzvcDWOprKvlMxK46Q
+ Ppi6vE2CpLnrg111JQMrud+BYuKqfvuNkJCy00v5fUD2LNZrDkUdlPKj0nkzAT5L
+ 8V5jCR36PhTMpu//64efK5D9JmVLoYk8Er5ouSYRDm1CF9m1Zc/to3j+uRD9gGjw
+ EiMEWJ+acFOeRY/8wOHn+uXeUarSdVOV1UpHABEBAAG0IU5vYmFyYSBLdXJva2F3
+ YSA8bm9iYXJhQGt1cm9rYXdhPokBUQQTAQgAOxYhBFlwN8eZ/zGMTVtQ/80LEULO
+ 9FO9BQJng0ZYAhsDBQsJCAcCAiICBhUKCQgLAgQWAgMBAh4HAheAAAoJEM0LEULO
+ 9FO952UH/2EkReyS2WpTRFakefO72fp/abzf5CIKXtLtXIM5sH2GvFpvRYldp0Dw
+ DXTZvpfbFMZbWsu1GjyKI1tD2qnRwDUDPOMCJk/jgawaXi74I1my5MDx+SbmbHCz
+ Q7ZgcwuUmDP4ad3JvpqTVMDJr2JDvLDxTzl5DySoYL8U6Jk/cNiYRMWXH9YEn91o
+ YMmcYyGd/34bqUFcwPmNk6F0hnoCaErlthmTwHBrIrRhU9X3+VbSFKb1tSWDIST2
+ w5DEHNFAzAH2jE/YnMFXIrPHYzQbLz3ZsXNqAqzGK10kl4Rkl5sjUk4rUDHRgYA4
+ Tz7o/pLVaBTHpVovDqYVEshsGr77jsW5AQ0EZ4NGWAEIAMDVb1/5qsCm4Q/yXrUC
+ k0c626aBQmyBVukv2M0E1sokO0XVnlslD7vy1PiiXi4wP1ijsNt4DQWpqMlReLt5
+ JbKMdAB1BS9XpbpIHi5b4OzUO37UJAvMN4UA2sdut+7tGH34jf4oM9oFKfG4BANp
+ 6V3s12a16AjH6sjIA+sJBC5ckhv78KO9PWZL5i3a0+vlop52+DqbR2ydDxwwp4ao
+ 0tDWKYNemrzg/CWjVyPKKHL51SpZaJP/GjQc03n4uvFL4pgdJ8MW+D5KQvhRB3Aj
+ /9zc8/gXO9R2CYbW2+D65/yq7Cmwv7CQuBlxIW36zsK1aM8WRzcaylYs/MnW2dhI
+ Z8EAEQEAAYkBNgQYAQgAIBYhBFlwN8eZ/zGMTVtQ/80LEULO9FO9BQJng0ZYAhsM
+ AAoJEM0LEULO9FO9n1UH/ipy/G3jGe2a/lNwNn04JladqYSE9loSrS93VRZZZ90p
+ lv/TZClFVpoBu8yTAtd9tZ9pioEbjG5ki6uOe4dMDNdFlbZnLGDsY/mW65Mmu1ee
+ zoum4V9nQz72AN/F7KVKMzJT/mrARVuoQJgG38XlfG50qkGki1y2OngW0KOnCT+4
+ 8I8btJ9LnTmnMT32r0PZFOKBMFTcQQBWlffrad8zJxz48J1jS9IkBtA1xdyhH5N/
+ tbkb7NRvbU0F2GAov32QjqymS8P8jj7PybxkvOxzd9H3xweezz+oDbHUuUlvTLGh
+ IPE3cSexDhwgDDqepGzMfo1ud7veeZezI/uB5PWIZI4=
+ =IGL8
+ -----END PGP PUBLIC KEY BLOCK-----
+' > $SYSROOT/etc/apt/sources.list.d/nobara.sources
+
 
 # Attach SYSROOT.
 attach_MOUNTPOINT $SYSROOT
@@ -93,19 +133,19 @@ chroot $SYSROOT apt -y dist-upgrade
 chroot $SYSROOT add-apt-repository -y ppa:jjriek/rockchip          # We need Joshua's repo.
 chroot $SYSROOT add-apt-repository -y ppa:oibaf/graphics-drivers   # We need the upstream mesa repo.
 chroot $SYSROOT apt update
-chroot $SYSROOT apt -y upgrade
 chroot $SYSROOT apt -y install ubuntu-server-rockchip u-boot-orangepi-5-plus u-boot-tools u-boot-menu \
                                $(python3 ./ruler/package.py --oibaf-gpu-packages) \
                                $(python3 ./ruler/package.py --pipewire-server-packages)
 
-#### Here Be Monkeys ####
-patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/server-1.patch
-patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/nobara.repo.patch
-
-#### Adding my kernel packages ####
+#### Apply my kernel packages ####
 chroot $SYSROOT apt update
 chroot $SYSROOT apt -y install linux-rockchip
 chroot $SYSROOT apt -y upgrade
+
+
+#### Here Be Monkeys ####
+patch --strip=1 --directory=$SYSROOT < patcher/ubuntu/server-1.patch
+
 
 #### Probably don't need this in here ####
 # chroot $SYSROOT update-initramfs -u

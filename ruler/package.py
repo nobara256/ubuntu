@@ -91,6 +91,7 @@ pipewire_server_package_array = [
     "libv4l-dev",
     "libssl-dev",
     "libmysofa-dev",
+    "liblc3-dev",
     "libwebrtc-audio-processing-dev",
     "libncurses-dev",
     "libreadline-dev",
