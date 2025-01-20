@@ -135,11 +135,9 @@ chroot $SYSROOT add-apt-repository -y ppa:oibaf/graphics-drivers   # We need the
 chroot $SYSROOT apt update
 chroot $SYSROOT apt -y install ubuntu-server-rockchip u-boot-orangepi-5-plus u-boot-tools u-boot-menu \
                                $(python3 ./ruler/package.py --oibaf-gpu-packages) \
-                               $(python3 ./ruler/package.py --pipewire-server-packages)
+                               $(python3 ./ruler/package.py --pipewire-server-packages) \
+                               linux-rockchip # Should pull my kernel builds as nobara repo was added previously.
 
-#### Apply my kernel packages ####
-chroot $SYSROOT apt update
-chroot $SYSROOT apt -y install linux-rockchip
 chroot $SYSROOT apt -y upgrade
 
 
