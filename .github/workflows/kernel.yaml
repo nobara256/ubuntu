@@ -35,11 +35,12 @@ jobs:
                     ] | map(
                       .kernelcfg=(.version | sub("(?<x>\\d+\\.\\d+)(.*)"; "kernel-\(.x)_arm64.cfg")) |
                       .release=(
-                        if(.version | test("\\d+\\.\\d+\\.\\d+"))
-                        then
-                          (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)+nobara-\($xrev)"))
+                        if  (.version | test("\\d+\\.\\d+\\.\\d+")) then
+                            (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)+nobara-\($xrev)"))
+                        elif(.version | test("\\d+\\.\\d+")) then
+                            (.version | sub("(?<x>\\d+\\.\\d+)"; "\(.x).0+nobara-\($xrev)"))
                         else
-                          (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0+nobara-\(.y)"))
+                             (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0+nobara-\(.y)"))
                         end
                       )
                     )
