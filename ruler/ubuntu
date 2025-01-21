@@ -80,7 +80,7 @@ echo "ubuntu" > $SYSROOT/etc/hostname
 
 # Apply my package repo
 echo -n 'Types: deb
-URIs: http://ubuntu.nobara.in:8080/ubuntu/
+URIs: http://dummy.nobara.in/ubuntu/
 Suites: oracular
 Components: nobara
 Architectures: arm64

@@ -6,40 +6,70 @@ from sys import argv
 # Packages provided to debootstrap --include
 # Highly required
 debootstrap_package_array = [
-    "debootstrap",
-    "linux-firmware",
-    "cloud-initramfs-growroot",
-    "grub-efi-arm64",
-    "initramfs-tools",
-    "cloud-init",
-    "git",
-    "bash-completion",
-    "microcom",
-    "nano",
-    "btop",
-    "dbus",
-    "rfkill",
-    "rsync",
-    "iptables",
-    "apt-utils",
-    "software-properties-common",
-    "device-tree-compiler",
-    "nvme-cli",
-    "nfs-kernel-server",
-    "python3",
-    "python3-pip",
-    "python3-pyelftools",
-    "python3-setuptools",
-    "python3-pkg-resources",
-    "python3-docutils",
-    "python3-launchpadlib",
-    "python-is-python3",
-    "libpython3-dev",
-    "libfdt-dev",
+    "alsa-base",
     "alsa-topology-conf",
     "alsa-ucm-conf",
-    "alsa-base",
-    "alsa-utils"
+    "alsa-utils",
+    "apt-utils",
+    "bash-completion",
+    "btop",
+    "cloud-init",
+    "cloud-initramfs-growroot",
+    "cryptsetup-initramfs",
+    "dbus",
+    "debootstrap",
+    "device-tree-compiler",
+    "fakeroot",
+    "fuse3",
+    "git",
+    "gnupg",
+    "grub-efi-arm64",
+    "initramfs-tools",
+    "iptables",
+    "jq",
+    "libfdt-dev",
+    "libpython3-dev",
+    "linux-firmware",
+    "lm-sensors",
+    "lshw",
+    "lsof",
+    "microcom",
+    "nano",
+    "nfs-kernel-server",
+    "nvme-cli",
+    "open-iscsi",
+    "open-vm-tools",
+    "openssh-client",
+    "openssh-server",
+    "openssh-sftp-server",
+    "parted",
+    "pciutils",
+    "python-is-python3",
+    "python3",
+    "python3-boto3",
+    "python3-botocore",
+    "python3-docutils",
+    "python3-launchpadlib",
+    "python3-openssl",
+    "python3-pip",
+    "python3-pkg-resources",
+    "python3-pyelftools",
+    "python3-s3transfer",
+    "python3-service-identity",
+    "python3-setuptools",
+    "python3-six",
+    "python3-systemd",
+    "rfkill",
+    "rsync",
+    "software-properties-common",
+    "squashfs-tools",
+    "ssh-import-id",
+    "udev",
+    "udisks2",
+    "uuid-runtime",
+    "wireless-regdb",
+    "wpasupplicant",
+    "zerofree"
 ]
 
 
@@ -52,8 +82,8 @@ debootstrap_exclude_package_array = [
 
 # Oibuf's gpu driver packages
 gpu_package_array = [
-    "mesa-vdpau-drivers",
     "mesa-va-drivers",
+    "mesa-vdpau-drivers",
     "mesa-vulkan-drivers",
     "vulkan-tools",
     "wayland-protocols"
@@ -62,109 +92,109 @@ gpu_package_array = [
 
 # Package dependencies [bluez pipewire wireplumber liblc3]
 pipewire_server_package_array = [
-    "autotools-dev",
     "automake",
+    "autotools-dev",
     "build-essential",
     "cmake",
-    "libtool",
-    "libltdl-dev",
+    "doxygen",
     "libasound2-dev",
     "libavcodec-dev",
     "libavfilter-dev",
     "libavformat-dev",
-    "libfreeaptx-dev",
-    "libfdk-aac-dev",
-    "libopus-dev",
-    "libffado-dev",
-    "libldacbt-abr-dev",
-    "libldacbt-enc-dev",
-    "libpulse-dev",
     "libdbus-1-dev",
-    "libusb-1.0-0-dev",
-    "libglib2.0-dev",
-    "libgdbm-dev",
-    "libnss3-dev",
-    "libsbc-dev",
-    "libsdl2-dev",
-    "libudev-dev",
-    "libva-dev",
-    "libv4l-dev",
-    "libssl-dev",
-    "libmysofa-dev",
-    "liblc3-dev",
-    "libwebrtc-audio-processing-dev",
-    "libncurses-dev",
-    "libreadline-dev",
-    "libsndfile1-dev",
-    "libsystemd-dev",
     "libdw-dev",
     "libebook1.2-dev",
     "libell-dev",
+    "libfdk-aac-dev",
+    "libffado-dev",
+    "libfreeaptx-dev",
+    "libgdbm-dev",
+    "libglib2.0-dev",
     "libical-dev",
     "libjson-c-dev",
+    "liblc3-dev",
+    "libldacbt-abr-dev",
+    "libldacbt-enc-dev",
+    "libltdl-dev",
+    "libmysofa-dev",
+    "libncurses-dev",
+    "libnss3-dev",
+    "libopus-dev",
+    "libpulse-dev",
+    "libreadline-dev",
+    "libsbc-dev",
+    "libsdl2-dev",
+    "libsndfile1-dev",
+    "libssl-dev",
+    "libsystemd-dev",
+    "libtool",
+    "libudev-dev",
+    "libusb-1.0-0-dev",
+    "libv4l-dev",
+    "libva-dev",
+    "libwebrtc-audio-processing-dev",
     "meson",
     "ninja-build",
     "pkg-config",
     "pulseaudio-utils",
-    "doxygen",
     "rtkit",
     "systemd-dev",
-    "v4l-utils",
-    "v4l-conf"
+    "v4l-conf",
+    "v4l-utils"
 ]
 
 
 # Cross compiler packages.
 cross_compiler_packages = [
-    "gcc-aarch64-linux-gnu",
-    "g++-aarch64-linux-gnu",
-    "check",
-    "flex",
-    "bison",
     "bc",
-    "swig",
-    "kmod",
+    "binfmt-support",
+    "bison",
+    "check",
     "cpio",
-    "gawk",
-    "dkms",
-    "udev",
-    "findutils",
-    "dh-make",
     "debhelper",
     "devscripts",
-    "fakeroot",
-    "parted",
-    "fdisk",
-    "ncurses-dev",
-    "u-boot-tools",
+    "dh-make",
+    "dkms",
     "dosfstools",
-    "uuid-runtime",
+    "fakeroot",
+    "fdisk",
+    "findutils",
+    "flex",
+    "g++-aarch64-linux-gnu",
+    "gawk",
+    "gcc-aarch64-linux-gnu",
+    "kmod",
     "libelf-dev",
-    "binfmt-support",
+    "ncurses-dev",
+    "parted",
     "python3-distutils-extra",
-    "qemu-user-static",
-    "qemu-system-arm",
     "qemu-efi-aarch64",
-    "qemu-efi-riscv64"
+    "qemu-efi-riscv64",
+    "qemu-system-arm",
+    "qemu-user-static",
+    "swig",
+    "u-boot-tools",
+    "udev",
+    "uuid-runtime"
 ]
 
 
 # Extra ackages on server
 server_package_array = [
-    "gcc-arm-none-eabi",
     "android-sdk-platform-tools",
-    "p7zip-full",
     "aria2",
-    "mosh",
-    "net-tools",
-    "i2c-tools",
-    "mpg123",
-    "ffmpeg",
-    "sshfs",
     "autofs",
-    "xz-utils",
+    "ffmpeg",
+    "gcc-arm-none-eabi",
+    "git-lfs",
+    "i2c-tools",
     "module-assistant",
-    "git-lfs"
+    "mosh",
+    "mpg123",
+    "net-tools",
+    "p7zip-full",
+    "sshfs",
+    "xz-utils"
 ]
 
 
@@ -206,7 +236,6 @@ def parse_args():
 
 if __name__ == "__main__":
     parse_args()
-    exit()
 
 
 
@@ -216,15 +245,5 @@ if __name__ == "__main__":
 
 # 6.12+nobara > 6.12 > 6.12.0~rc5-GITHUB_RUN_NUMBER
 
-"pipewire-server_1.2.7+nobara-2ubuntu1_arm64.deb"
-
-
-crucial_packages_array = set(debootstrap_package_array + pipewire_server_array + cross_compiler_packages + gpu_extra_package + desktop_package_array)
-
-
-linear_array = []
-for package in server_package_array:
-    if package not in crucial_packages_array:
-        linear_array.append(package)
-        print(f'    "{package}",')
+# pipewire-server_1.2.7+nobara-2ubuntu1_arm64.deb
 
