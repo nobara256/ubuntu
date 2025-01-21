@@ -3,10 +3,6 @@
 set -eE
 trap 'echo Error: in $0 on line $LINENO' ERR
 
-if [ "$(id -u)" -ne 0 ]; then
-    echo "Please run as root"
-    exit 1
-fi
 
 attach_MOUNTPOINT() {
     local MOUNTPOINT="$1"
@@ -133,11 +129,11 @@ chroot $SYSROOT apt -y dist-upgrade
 chroot $SYSROOT add-apt-repository -y ppa:jjriek/rockchip          # We need Joshua's repo.
 chroot $SYSROOT add-apt-repository -y ppa:oibaf/graphics-drivers   # We need the upstream mesa repo.
 chroot $SYSROOT apt update
-chroot $SYSROOT apt -y install ubuntu-server-rockchip u-boot-orangepi-5-plus u-boot-tools u-boot-menu \
-                               $(python3 ./ruler/package.py --oibaf-gpu-packages) \
-                               $(python3 ./ruler/package.py --pipewire-server-packages) \
-                               linux-rockchip # Should pull my kernel builds as the repo was added previously.
+chroot $SYSROOT apt -y --no-install-recommends install ubuntu-server-rockchip u-boot-orangepi-5-plus u-boot-tools u-boot-menu \
+                                                       $(python3 ./ruler/package.py --oibaf-gpu-packages) \
+                                                       $(python3 ./ruler/package.py --pipewire-server-packages)
 
+chroot $SYSROOT apt -y --no-install-recommends install linux-rockchip # Should pull my kernel build as the repo was added previously.
 chroot $SYSROOT apt -y upgrade
 
 
