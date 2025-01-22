@@ -265,10 +265,13 @@ if __name__ == "__main__":
     parse_args()
 
 
-exit()
+# exit()
 
-def encode_array(array, xlen=4, ylen=25):
-    array = [k for k in map(lambda x: (len(max(x, key=lambda y: len(y))), x), batched(array, ylen))]
+def encode_array(array, xlen=4):
+
+    ylen = 1+(len(array) // xlen)
+
+    array = [k for k in map(lambda x: [ len(max(x, key=lambda y: len(y))), x ], batched(array, ylen))]
     dump = ""
     for y in range(ylen):
         for x in range(xlen):
@@ -283,7 +286,7 @@ def encode_array(array, xlen=4, ylen=25):
 
 def decode_array(dump, xlen=4):
 
-    array = findall(r"\S+", dump)
+    array = findall('"(.+)"', dump)
 
     darray = []
 
@@ -295,24 +298,20 @@ def decode_array(dump, xlen=4):
     for x in range(xlen):
         for y in range(ylen):
             try:
-                if y > rlen:
-                    r = 1
-                else:
-                    r = 0
-                darray.append( array[x+y*(xlen-r)] )
+
+                darray.append( array[x+y*xlen] )
 
             except IndexError:
                 pass
 
     return darray
 
-print(encode_array(debootstrap_package_array, xlen=4, ylen=1+(len(debootstrap_package_array)//4)))
-print(encode_array(pipewire_server_package_array, xlen=4, ylen=1+(len(pipewire_server_package_array)//4)))
-print(encode_array(cross_compiler_packages, xlen=4, ylen=1+(len(cross_compiler_packages)//4)))
-print(dump:=encode_array(server_package_array, xlen=4, ylen=1+(len(server_package_array)//4)))
+print(encode_array(debootstrap_package_array, xlen=4))
+print(encode_array(pipewire_server_package_array, xlen=4))
+print(encode_array(cross_compiler_packages, xlen=4))
+print(dump:=encode_array(server_package_array, xlen=4))
 
 
-print(decode_array(dump, xlen=4))
 
 
 # xz --decompress --stdout < ubuntu-image/ubuntu-24.10-preinstalled-server-arm64.img.xz | sudo dd of=/dev/nvme0n1 bs=8M iflag=fullblock oflag=direct status=progress
