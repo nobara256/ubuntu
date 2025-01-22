@@ -8,24 +8,11 @@ from re import findall
 # Packages provided to debootstrap --include
 # Highly required
 debootstrap_package_array = [
-    "apt-utils",
-    "software-properties-common"
-]
-
-
-# Packages provided to debootstrap --exclude
-# Don't install things you don't want
-debootstrap_exclude_package_array = [
-    "bluez"
-]
-
-
-# Extra essential packages.
-server_essential_package_array = [
     "alsa-base",
     "alsa-topology-conf",
     "alsa-ucm-conf",
     "alsa-utils",
+    "apt-utils",
     "bash-completion",
     "bc",
     "btop",
@@ -90,6 +77,7 @@ server_essential_package_array = [
     "python3.12-gdbm",
     "rfkill",
     "rsync",
+    "software-properties-common",
     "squashfs-tools",
     "ssh-import-id",
     "udev",
@@ -98,6 +86,13 @@ server_essential_package_array = [
     "wireless-regdb",
     "wpasupplicant",
     "zerofree"
+]
+
+
+# Packages provided to debootstrap --exclude
+# Don't install things you don't want
+debootstrap_exclude_package_array = [
+    "bluez"
 ]
 
 
@@ -272,8 +267,6 @@ if __name__ == "__main__":
 
 exit()
 
-
-
 def encode_array(array, xlen=4, ylen=25):
     array = [k for k in map(lambda x: (len(max(x, key=lambda y: len(y))), x), batched(array, ylen))]
     dump = ""
@@ -292,13 +285,21 @@ def decode_array(dump, xlen=4):
 
     array = findall(r"\S+", dump)
 
-    darray = [None for _ in range(len(array))]
+    darray = []
 
+    ylen = (len(array) // xlen)+1
+    rlen = (len(array)  % xlen)
 
-    for y in range(ylen):
-        for x in range(xlen):
+    print(xlen, ylen, rlen)
+
+    for x in range(xlen):
+        for y in range(ylen):
             try:
-                darray[x+y*ylen] = array[x+y*xlen]
+                if y > rlen:
+                    r = 1
+                else:
+                    r = 0
+                darray.append( array[x+y*(xlen-r)] )
 
             except IndexError:
                 pass
@@ -308,7 +309,10 @@ def decode_array(dump, xlen=4):
 print(encode_array(debootstrap_package_array, xlen=4, ylen=1+(len(debootstrap_package_array)//4)))
 print(encode_array(pipewire_server_package_array, xlen=4, ylen=1+(len(pipewire_server_package_array)//4)))
 print(encode_array(cross_compiler_packages, xlen=4, ylen=1+(len(cross_compiler_packages)//4)))
-print(encode_array(server_package_array, xlen=4, ylen=1+(len(server_package_array)//4)))
+print(dump:=encode_array(server_package_array, xlen=4, ylen=1+(len(server_package_array)//4)))
+
+
+print(decode_array(dump, xlen=4))
 
 
 # xz --decompress --stdout < ubuntu-image/ubuntu-24.10-preinstalled-server-arm64.img.xz | sudo dd of=/dev/nvme0n1 bs=8M iflag=fullblock oflag=direct status=progress
