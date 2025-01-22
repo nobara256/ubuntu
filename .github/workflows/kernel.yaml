@@ -36,11 +36,11 @@ jobs:
                       .kernelcfg=(.version | sub("(?<x>\\d+\\.\\d+)(.*)"; "kernel-\(.x)_arm64.cfg")) |
                       .release=(
                         if  (.version | test("^\\d+\\.\\d+$")) then
-                            (.version | sub("(?<x>\\d+\\.\\d+)"; "\(.x).0+nobara-\(1000)"))
+                            (.version | sub("(?<x>\\d+\\.\\d+)"; "\(.x).0+nobara-1kernel\(0)"))
                         elif(.version | test("^\\d+\\.\\d+\\.\\d+$")) then
-                            (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)+nobara-\(.y | tonumber + 1000)"))
+                            (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)+nobara-1kernel\(.y | tonumber + 0)"))
                         else
-                            (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0+nobara-0rc\(.y)"))
+                            (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0+nobara-0kernel\(.y | tonumber + 0)"))
                         end
                       )
                     )

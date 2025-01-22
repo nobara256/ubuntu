@@ -1,4 +1,6 @@
 from sys import argv
+from itertools import batched
+from re import findall
 
 
 
@@ -6,12 +8,26 @@ from sys import argv
 # Packages provided to debootstrap --include
 # Highly required
 debootstrap_package_array = [
+    "apt-utils",
+    "software-properties-common"
+]
+
+
+# Packages provided to debootstrap --exclude
+# Don't install things you don't want
+debootstrap_exclude_package_array = [
+    "bluez"
+]
+
+
+# Extra essential packages.
+server_essential_package_array = [
     "alsa-base",
     "alsa-topology-conf",
     "alsa-ucm-conf",
     "alsa-utils",
-    "apt-utils",
     "bash-completion",
+    "bc",
     "btop",
     "cloud-init",
     "cloud-initramfs-growroot",
@@ -27,6 +43,7 @@ debootstrap_package_array = [
     "initramfs-tools",
     "iptables",
     "jq",
+    "landscape-common",
     "libfdt-dev",
     "libpython3-dev",
     "linux-firmware",
@@ -46,9 +63,18 @@ debootstrap_package_array = [
     "pciutils",
     "python-is-python3",
     "python3",
+    "python3-automat",
+    "python3-bcrypt",
     "python3-boto3",
     "python3-botocore",
+    "python3-click",
+    "python3-colorama",
+    "python3-constantly",
     "python3-docutils",
+    "python3-gdbm",
+    "python3-hamcrest",
+    "python3-hyperlink",
+    "python3-incremental",
     "python3-launchpadlib",
     "python3-openssl",
     "python3-pip",
@@ -59,9 +85,11 @@ debootstrap_package_array = [
     "python3-setuptools",
     "python3-six",
     "python3-systemd",
+    "python3-twisted",
+    "python3-zope.interface",
+    "python3.12-gdbm",
     "rfkill",
     "rsync",
-    "software-properties-common",
     "squashfs-tools",
     "ssh-import-id",
     "udev",
@@ -70,13 +98,6 @@ debootstrap_package_array = [
     "wireless-regdb",
     "wpasupplicant",
     "zerofree"
-]
-
-
-# Packages provided to debootstrap --exclude
-# Don't install things you don't want
-debootstrap_exclude_package_array = [
-    "bluez"
 ]
 
 
@@ -220,6 +241,11 @@ def parse_args():
 
         return
 
+    if "--server_essential_package_array" in argv:
+        print(" ".join(server_essential_package_array))
+
+        return
+
     if "--oibaf-gpu-packages" in argv:
         print(" ".join(gpu_package_array))
 
@@ -233,10 +259,56 @@ def parse_args():
     if "--additional-server-packages" in argv:
         print(" ".join(server_package_array))
 
+        return
+
+    return None
+
+
+
 
 if __name__ == "__main__":
     parse_args()
 
+
+exit()
+
+
+
+def encode_array(array, xlen=4, ylen=25):
+    array = [k for k in map(lambda x: (len(max(x, key=lambda y: len(y))), x), batched(array, ylen))]
+    dump = ""
+    for y in range(ylen):
+        for x in range(xlen):
+            try:
+                # x*ylen+y
+                n, k = array[x]
+                dump += f'"{k[y]}"'.ljust(n+4)
+            except IndexError:
+                pass
+        dump += "\n"
+    return dump
+
+def decode_array(dump, xlen=4):
+
+    array = findall(r"\S+", dump)
+
+    darray = [None for _ in range(len(array))]
+
+
+    for y in range(ylen):
+        for x in range(xlen):
+            try:
+                darray[x+y*ylen] = array[x+y*xlen]
+
+            except IndexError:
+                pass
+
+    return darray
+
+print(encode_array(debootstrap_package_array, xlen=4, ylen=1+(len(debootstrap_package_array)//4)))
+print(encode_array(pipewire_server_package_array, xlen=4, ylen=1+(len(pipewire_server_package_array)//4)))
+print(encode_array(cross_compiler_packages, xlen=4, ylen=1+(len(cross_compiler_packages)//4)))
+print(encode_array(server_package_array, xlen=4, ylen=1+(len(server_package_array)//4)))
 
 
 # xz --decompress --stdout < ubuntu-image/ubuntu-24.10-preinstalled-server-arm64.img.xz | sudo dd of=/dev/nvme0n1 bs=8M iflag=fullblock oflag=direct status=progress
