@@ -1,0 +1,122 @@
+#!/bin/bash
+
+set -eE
+trap 'echo Error: in $0 on line $LINENO' ERR
+
+# export ARCH=arm64
+# export DEBFULLNAME="Nobara Kurokawa"
+# export DEBEMAIL="nobara@kurokawa"
+
+# export KERNEL_MAJOR_RELEASE="6.13.0"
+# export KERNEL_DEBIAN_RELEASE="5120"
+
+export KERNEL_RELEASE="${KERNEL_MAJOR_RELEASE}+nobara-${KERNEL_DEBIAN_RELEASE}"
+export KERNEL_PACKAGE="kernel-${KERNEL_MAJOR_RELEASE}-opi5plus"
+export KERNEL_TARGET="rockchip"
+
+export AARCH64="$1/__AARCH64__"
+export KERNEL_DEBIAN_PACKAGE="$1/${KERNEL_PACKAGE}_${KERNEL_RELEASE}_${ARCH}"
+export DUMMY_DEBIAN_PACKAGE="$1/kernel-opi5plus_${KERNEL_RELEASE}_${ARCH}"
+
+
+# export ARCH_HOST_CC="aarch64-linux-gnu-gcc"
+export ARCH_HOST_CC="x86_64-linux-gnu-gcc"
+
+
+export MAKE="make \
+             ARCH=$ARCH \
+             CROSS_COMPILE=aarch64-linux-gnu- \
+             CC=aarch64-linux-gnu-gcc \
+             HOSTCC=$ARCH_HOST_CC \
+             CONFIG_DEBUG_SECTION_MISMATCH=y \
+             KERNELVERSION=$KERNEL_RELEASE-$KERNEL_TARGET \
+             KBUILD_BUILD_VERSION=$KERNEL_DEBIAN_RELEASE \
+             LOCALVERSION= \
+             localver-extra= \
+             CFLAGS_MODULE="-DPKG_ABI=$KERNEL_DEBIAN_RELEASE" \
+             PYTHON=python3 \
+             O=$AARCH64"
+
+
+set -x
+
+
+# Apply .config
+$MAKE olddefconfig
+
+# Make kernel modules dtb
+$MAKE -j8 Image modules dtbs
+
+# Install modules dtb vdso
+$MAKE dtbs_install modules_install vdso_install \
+    INSTALL_MOD_STRIP=1 \
+    INSTALL_MOD_PATH=$KERNEL_DEBIAN_PACKAGE \
+    INSTALL_FW_PATH=$KERNEL_DEBIAN_PACKAGE/lib/firmware/$KERNEL_RELEASE-$KERNEL_TARGET \
+    INSTALL_DTBS_PATH=$KERNEL_DEBIAN_PACKAGE/lib/firmware/$KERNEL_RELEASE-$KERNEL_TARGET/device-tree
+
+# Copy the kernel
+mkdir -p $KERNEL_DEBIAN_PACKAGE/boot
+cp $AARCH64/arch/arm64/boot/Image $KERNEL_DEBIAN_PACKAGE/boot/vmlinuz-$KERNEL_RELEASE-$KERNEL_TARGET
+cp $AARCH64/System.map $KERNEL_DEBIAN_PACKAGE/boot/System.map-$KERNEL_RELEASE-$KERNEL_TARGET
+cp $AARCH64/.config $KERNEL_DEBIAN_PACKAGE/boot/config-$KERNEL_RELEASE-$KERNEL_TARGET
+
+# Dummy kernel header directory.
+mkdir -p $KERNEL_DEBIAN_PACKAGE/usr/src/linux-headers-$KERNEL_RELEASE-$KERNEL_TARGET
+ln -f -n -s /usr/src/linux-headers-$KERNEL_RELEASE-$KERNEL_TARGET $KERNEL_DEBIAN_PACKAGE/lib/modules/$KERNEL_RELEASE-$KERNEL_TARGET/build
+
+# Everything in a single package
+mkdir -p $KERNEL_DEBIAN_PACKAGE/DEBIAN
+
+cat > $KERNEL_DEBIAN_PACKAGE/DEBIAN/control << HEREDOC
+Package: $KERNEL_PACKAGE
+Source: $KERNEL_PACKAGE
+Version: $KERNEL_RELEASE
+Section: main
+Priority: standard
+Architecture: $ARCH
+Depends: kmod, linux-base (>= 4.5ubuntu1~16.04.1)
+Homepage: https://kernel.org/
+Rules-Requires-Root: no
+Maintainer: $DEBFULLNAME <$DEBEMAIL>
+Description: A minimal kernel package for ubuntu-server aarch64 running on opi-5-plus.
+HEREDOC
+
+# A simple postinstall script
+cat > $KERNEL_DEBIAN_PACKAGE/DEBIAN/postinst << HEREDOC
+DEB_MAINT_PARAMS="$*" run-parts --report --exit-on-error --arg=$KERNEL_RELEASE-$KERNEL_TARGET --arg=/boot/vmlinuz-$KERNEL_RELEASE-$KERNEL_TARGET /etc/kernel/postinst.d
+HEREDOC
+
+# Assign proper permission for the script
+chmod 775 $KERNEL_DEBIAN_PACKAGE/DEBIAN/postinst
+
+# Build the packaage
+dpkg-deb --build $KERNEL_DEBIAN_PACKAGE $1
+
+
+# A dummy package
+mkdir -p $DUMMY_DEBIAN_PACKAGE/DEBIAN
+
+cat > $DUMMY_DEBIAN_PACKAGE/DEBIAN/control << HEREDOC
+Package: kernel-opi5plus
+Source: kernel-opi5plus
+Version: $KERNEL_RELEASE
+Section: main
+Priority: standard
+Architecture: $ARCH
+Depends: $KERNEL_PACKAGE
+Homepage: https://kernel.org/
+Rules-Requires-Root: no
+Maintainer: $DEBFULLNAME <$DEBEMAIL>
+Description: A minimal kernel package for ubuntu-server aarch64 running on opi-5-plus.
+HEREDOC
+
+# Build the dummy packaage
+dpkg-deb --build $DUMMY_DEBIAN_PACKAGE $1
+
+
+set +x
+
+echo "Bye Bye!!"
+
+trap '' EXIT
+exit 0

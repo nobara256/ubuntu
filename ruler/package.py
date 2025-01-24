@@ -24,6 +24,7 @@ debootstrap_package_array = [
     "device-tree-compiler",
     "fakeroot",
     "fuse3",
+    "gh",
     "git",
     "gnupg",
     "grub-efi-arm64",
@@ -310,8 +311,6 @@ print(encode_array(debootstrap_package_array, xlen=4))
 print(encode_array(pipewire_server_package_array, xlen=4))
 print(encode_array(cross_compiler_packages, xlen=4))
 print(dump:=encode_array(server_package_array, xlen=4))
-
-
 
 
 # xz --decompress --stdout < ubuntu-image/ubuntu-24.10-preinstalled-server-arm64.img.xz | sudo dd of=/dev/nvme0n1 bs=8M iflag=fullblock oflag=direct status=progress

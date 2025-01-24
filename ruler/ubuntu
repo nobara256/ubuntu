@@ -60,6 +60,7 @@ export LANG=C
 export SYSROOT=aarch64
 
 
+set -x
 
 
 # Create a SYSROOT directory and populate it with debootstrap.
@@ -79,7 +80,8 @@ debootstrap      \
 echo "ubuntu" > $SYSROOT/etc/hostname
 
 # Apply my package repo
-echo -n 'Types: deb
+cat > $SYSROOT/etc/apt/sources.list.d/nobara.sources << HEREDOC
+Types: deb
 URIs: http://dummy.nobara.in/ubuntu/
 Suites: oracular
 Components: nobara
@@ -116,7 +118,7 @@ Signed-By: -----BEGIN PGP PUBLIC KEY BLOCK-----
  IPE3cSexDhwgDDqepGzMfo1ud7veeZezI/uB5PWIZI4=
  =IGL8
  -----END PGP PUBLIC KEY BLOCK-----
-' > $SYSROOT/etc/apt/sources.list.d/nobara.sources
+HEREDOC
 
 
 # Attach SYSROOT.
@@ -133,7 +135,7 @@ chroot $SYSROOT apt -y --no-install-recommends install ubuntu-server-rockchip u-
                                                        $(python3 ./ruler/package.py --oibaf-gpu-packages)                      \
                                                        $(python3 ./ruler/package.py --pipewire-server-packages) # This would install a bunch of packages.
 
-chroot $SYSROOT apt -y --no-install-recommends install linux-rockchip # Should pull my kernel build as the repo was added previously.
+chroot $SYSROOT apt -y --no-install-recommends install kernel-6.13.0-opi5plus # Should pull my kernel build as the repo was added previously.
 chroot $SYSROOT apt -y upgrade
 
 
@@ -162,6 +164,8 @@ detach_MOUNTPOINT $SYSROOT
 
 # Delete the SYSROOT directory
 rm -rf $SYSROOT
+
+set +x
 
 echo "Bye Bye!!"
 

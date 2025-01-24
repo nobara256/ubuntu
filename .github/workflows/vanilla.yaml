@@ -1,0 +1,122 @@
+# This is a basic workflow to help you get started with Actions
+
+name: BUILD-VANILLA
+
+# Controls when the workflow will run
+on:
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+    # This workflow contains a single job called "kernel-build"
+    kernel-release:
+        # The type of runner that the job will run on
+        runs-on: ubuntu-24.04
+        outputs:
+            xarray: ${{ steps.release-array.outputs.array }}
+
+        # Steps represent a sequence of tasks that will be executed as part of the job
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            - uses: actions/checkout@v4
+
+            - name: Fetch release from kernel.org
+              id: release-array
+              # Select the mainline and stable releases.
+              # Always produce a "6.12.9-1009.9" syntax release string.
+              # Always produce a "kernel-6.12_arm64.cfg" syntax config string.
+              run: |
+                echo array=$(
+                  curl -s https://www.kernel.org/releases.json | jq '{
+                    include: [
+                      .releases[] |
+                        select((.moniker=="mainline") or (.moniker=="stable"))
+                    ] | map(
+                        .family=(.version | sub("(?<x>\\d+\\.\\d+)(.*)"; "\(.x)")) |
+                        .release=(
+                            if  (.version | test("^\\d+\\.\\d+$")) then
+                                (.version | sub("(?<x>\\d+\\.\\d+)"; "\(.x).0"))
+                            elif(.version | test("^\\d+\\.\\d+\\.\\d+$")) then
+                                (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)"))
+                            else
+                                (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0"))
+                            end
+                        ) |
+                        .drelease=(
+                            if  (.version | test("^\\d+\\.\\d+$")) then
+                                (.version | sub("(?<x>\\d+\\.\\d+)"; "\(1000)"))
+                            elif(.version | test("^\\d+\\.\\d+\\.\\d+$")) then
+                                (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.y | tonumber + 1000)"))
+                            else
+                                (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.y | tonumber + 1000)"))
+                            end
+                        )
+                    )
+                  }' --arg yrun $GITHUB_RUN_ATTEMPT
+                ) >> $GITHUB_OUTPUT
+
+    # This workflow contains a single job called "kernel-build"
+    kernel-package:
+        # The type of runner that the job will run on
+        runs-on: ubuntu-24.04
+        needs: kernel-release
+
+        name: kernel-${{ matrix.release }}
+
+        strategy:
+            matrix: ${{ fromJSON(needs.kernel-release.outputs.xarray) }}
+
+        # Steps represent a sequence of tasks that will be executed as part of the job
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            - uses: actions/checkout@v4
+
+            - name: Install dependencies.
+              run: |
+                sudo apt update
+                sudo apt upgrade -y
+                sudo apt install -y build-essential gcc-aarch64-linux-gnu bison  devscripts        \
+                qemu-user-static qemu-system-arm qemu-efi-aarch64 u-boot-tools binfmt-support      \
+                debootstrap flex libssl-dev bc rsync kmod cpio xz-utils fakeroot parted            \
+                udev dosfstools uuid-runtime git-lfs device-tree-compiler python3 dctrl-tools      \
+                python-is-python3 fdisk bc debhelper python3-pyelftools python3-setuptools         \
+                python3-distutils-extra python3-pkg-resources swig libfdt-dev libpython3-dev dctrl-tools
+
+            - name: Downloading kernel source package.
+              run: wget --quiet ${{ matrix.source }}
+
+            - name: Extracting kernel source package.
+              run: tar -xf $(basename ${{ matrix.source }})
+
+            - name: Patching kernel source package.
+              run: |
+                cp -f overlay/rk3588.overlay.d/rk3588* linux-${{ matrix.version }}/arch/arm64/boot/dts/rockchip   # Copy rk3588 dtbs by Joshua
+                patch --strip=1 --directory=linux-${{ matrix.version }} < patcher/kernel/overlay.patch            # Patch kernel overlay loading
+                mkdir -p $GITHUB_WORKSPACE/__AARCH64__
+                cp $GITHUB_WORKSPACE/overlay/kernel.cfg.d/kernel-${{ matrix.family }}_arm64.cfg  $GITHUB_WORKSPACE/__AARCH64__/.config
+              shell: bash
+              env:
+                ARCH: arm64
+
+            - name: Build kernel package.
+              run: fakeroot ./ruler/kernel $GITHUB_WORKSPACE
+              shell: bash
+              working-directory: linux-${{ matrix.version }}
+              env:
+                ARCH: arm64
+                CROSS_COMPILE: aarch64-linux-gnu-
+                CC: aarch64-linux-gnu-gcc
+                LANG: C
+                DEBEMAIL: nobara@kurokawa
+                DEBFULLNAME: Kurokawa Nobara
+                KERNEL_MAJOR_RELEASE: ${{ matrix.release }}
+                KERNEL_DEBIAN_RELEASE: ${{ matrix.drelease }}
+
+            - name: Upload packages
+              uses: actions/upload-artifact@v4.5.0
+              with:
+                name: kernel-package-${{ matrix.release }}_arm64
+                path: linux-*.deb
+                compression-level: 0
+                if-no-files-found: error
