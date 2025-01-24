@@ -11,12 +11,12 @@ trap 'echo Error: in $0 on line $LINENO' ERR
 # export KERNEL_DEBIAN_RELEASE="5120"
 
 export KERNEL_RELEASE="${KERNEL_MAJOR_RELEASE}+nobara-${KERNEL_DEBIAN_RELEASE}"
-export KERNEL_PACKAGE="kernel-${KERNEL_MAJOR_RELEASE}-opi5plus"
+export KERNEL_PACKAGE="kernel-${KERNEL_MAJOR_RELEASE}-rockchip"
 export KERNEL_TARGET="rockchip"
 
 export AARCH64="$1/__AARCH64__"
 export KERNEL_DEBIAN_PACKAGE="$1/${KERNEL_PACKAGE}_${KERNEL_RELEASE}_${ARCH}"
-export DUMMY_DEBIAN_PACKAGE="$1/kernel-opi5plus_${KERNEL_RELEASE}_${ARCH}"
+export DUMMY_DEBIAN_PACKAGE="$1/kernel-rockchip_${KERNEL_RELEASE}_${ARCH}"
 
 
 # export ARCH_HOST_CC="aarch64-linux-gnu-gcc"
@@ -111,8 +111,8 @@ dpkg-deb --build $KERNEL_DEBIAN_PACKAGE $1
 mkdir -p $DUMMY_DEBIAN_PACKAGE/DEBIAN
 
 cat > $DUMMY_DEBIAN_PACKAGE/DEBIAN/control << HEREDOC
-Package: kernel-opi5plus
-Source: kernel-opi5plus
+Package: kernel-rockchip
+Source: kernel-rockchip
 Version: $KERNEL_RELEASE
 Section: main
 Priority: standard
