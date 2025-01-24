@@ -45,11 +45,11 @@ jobs:
                         ) |
                         .drelease=(
                             if  (.version | test("^\\d+\\.\\d+$")) then
-                                (.version | sub("(?<x>\\d+\\.\\d+)"; "\(1000)"))
+                                (.version | sub("(?<x>\\d+\\.\\d+)"; "\(5000)"))
                             elif(.version | test("^\\d+\\.\\d+\\.\\d+$")) then
-                                (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.y | tonumber + 1000)"))
+                                (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.y | tonumber + 5000)"))
                             else
-                                (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.y | tonumber + 1000)"))
+                                (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.y | tonumber + 2000)"))
                             end
                         )
                     )
