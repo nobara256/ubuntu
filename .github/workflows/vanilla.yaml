@@ -62,7 +62,7 @@ jobs:
         runs-on: ubuntu-24.04
         needs: kernel-release
 
-        name: kernel-${{ matrix.release }}
+        name: kernel-${{ matrix.release }}-${{ matrix.drelease }}
 
         strategy:
             matrix: ${{ fromJSON(needs.kernel-release.outputs.xarray) }}
