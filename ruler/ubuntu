@@ -1,11 +1,7 @@
 #!/bin/bash
 
-deboot_log() {
-    cat AARCH64/debootstrap/debootstrap.log
-}
-
 set -eE
-trap 'echo Error: in $0 on line $LINENO; deboot_log' ERR
+trap 'echo Error: in $0 on line $LINENO' ERR
 
 
 attach_MOUNTPOINT() {
@@ -61,28 +57,23 @@ export LC_CTYPE=C
 export LANGUAGE=C
 export LANG=C
 
-export SYSROOT="AARCH64"
+export SYSROOT="xX__AARCH64__Xx"
 
 
 set -x
 
 # Create a SYSROOT directory and populate it with debootstrap.
-mkdir $SYSROOT
 debootstrap      \
     --arch=$ARCH \
-    --foreign    \
     --components=main,universe,multiverse,restricted   \
-    --extra-suites=oracular-updates,oracular-backports \
-    --include=$(python3 ./ruler/package.py --debootstrap-include-packages) \
-    --exclude=$(python3 ./ruler/package.py --debootstrap-exclude-packages) \
-    $SUITE   \
+    --include=$(python3 ./ruler/package.py --separator "," --server-essential-package-array) \
+    oracular \
     $SYSROOT \
     "http://kambing.uu.sg/ubuntu-ports"
     # "http://ports.ubuntu.com/ubuntu-ports"
 
 
-# Trigger second stage
-chroot $SYSROOT /debootstrap/debootstrap --second-stage
+    # --extra-suites=oracular-updates,oracular-backports causing some serious issues.
 
 
 # Apply HOSTNAME
@@ -140,10 +131,9 @@ chroot $SYSROOT apt -y dist-upgrade
 chroot $SYSROOT add-apt-repository -y ppa:jjriek/rockchip          # We need Joshua's repo.
 chroot $SYSROOT add-apt-repository -y ppa:oibaf/graphics-drivers   # We need the upstream mesa repo.
 chroot $SYSROOT apt update
-chroot $SYSROOT apt -y --no-install-recommends install ubuntu-server-rockchip u-boot-orangepi-5-plus u-boot-tools u-boot-menu  \
-                                                       $(python3 ./ruler/package.py --server_essential_package_array)          \
-                                                       $(python3 ./ruler/package.py --oibaf-gpu-packages)                      \
-                                                       $(python3 ./ruler/package.py --pipewire-server-packages) # This would install a bunch of packages.
+chroot $SYSROOT apt -y --no-install-recommends install ubuntu-server-rockchip u-boot-orangepi-5-plus u-boot-tools u-boot-menu \
+                                                       $(python3 ./ruler/package.py --separator " " --oibaf-gpu-packages --pipewire-server-packages)
+                                                       # This would install a bunch of packages.
 
 # chroot $SYSROOT apt -y --no-install-recommends install kernel-6.13.0-opi5plus # Should pull my kernel build as the repo was added previously.
 chroot $SYSROOT apt -y upgrade
@@ -173,7 +163,7 @@ detach_MOUNTPOINT $SYSROOT
 (cd $SYSROOT &&  tar -p -c --sort=name --xattrs ./*) | xz -3 -T0 > "ubuntu-${UBUNTU_RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz"
 
 # Delete the SYSROOT directory
-rm -rf $SYSROOT
+# rm -rf $SYSROOT
 
 set +x
 

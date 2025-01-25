@@ -5,20 +5,6 @@ from re import findall
 
 
 
-# Packages provided to debootstrap --include
-# Highly required
-debootstrap_package_array = [
-    "software-properties-common"
-]
-
-
-# Packages provided to debootstrap --exclude
-# Don't install things you don't want
-debootstrap_exclude_package_array = [
-    "bluez"
-]
-
-
 # Server essential packages
 server_essential_package_array = [
     "alsa-base",
@@ -91,6 +77,7 @@ server_essential_package_array = [
     "python3.12-gdbm",
     "rfkill",
     "rsync",
+    "software-properties-common",
     "squashfs-tools",
     "ssh-import-id",
     "udev",
@@ -230,37 +217,40 @@ desktop_package_array = [
 
 
 
-def parse_args():
+def parse_args(arg_array):
+
+    try:
+        separator_x = arg_array.index("--separator")
+        separator = arg_array[separator_x+1]
+        if separator not in set([" ", ",", ", "]):
+            raise ValueError
+
+    except ValueError:
+        print('E: No --separator <,> <space> or <,space>')
+        exit(1)
+
+
+    package_dump_array = []
 
     if "--debootstrap-include-packages" in argv:
-        print(",".join(debootstrap_package_array))
-
-        return
+        package_dump_array += debootstrap_package_array
 
     if "--debootstrap-exclude-packages" in argv:
-        print(",".join(debootstrap_exclude_package_array))
+        package_dump_array += debootstrap_exclude_package_array
 
-        return
-
-    if "--server_essential_package_array" in argv:
-        print(" ".join(server_essential_package_array))
-
-        return
+    if "--server-essential-package-array" in argv:
+        package_dump_array += server_essential_package_array
 
     if "--oibaf-gpu-packages" in argv:
-        print(" ".join(gpu_package_array))
-
-        return
+        package_dump_array += gpu_package_array
 
     if "--pipewire-server-packages" in argv:
-        print(" ".join(pipewire_server_package_array))
-
-        return
+        package_dump_array += pipewire_server_package_array
 
     if "--additional-server-packages" in argv:
-        print(" ".join(server_package_array))
+        package_dump_array += server_package_array
 
-        return
+    print(separator.join(package_dump_array))
 
     return None
 
@@ -268,4 +258,4 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    parse_args()
+    parse_args(argv[1:])
