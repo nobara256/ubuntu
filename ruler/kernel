@@ -17,7 +17,7 @@ export KERNEL_PACKAGE="${KERNEL_MAJOR_RELEASE}-${KERNEL_FLAVOUR}"
 export KERNEL_RELEASE="${KERNEL_MAJOR_RELEASE}-${KERNEL_DEBIAN_RELEASE}.${KERNEL_REBUILD}"
 
 export PACKAGE_PATH=$1
-export AARCH64="$PACKAGE_PATH/__AARCH64__"
+export AARCH64="__AARCH64__"
 
 # export ARCH_HOST_CC="aarch64-linux-gnu-gcc"
 export ARCH_HOST_CC="x86_64-linux-gnu-gcc"
@@ -77,7 +77,7 @@ cp $AARCH64/.config $KERNEL_BASE_PACKAGE/boot/config-$KERNEL_RELEASE-$KERNEL_FLA
 
 # Dummy kernel header directory
 mkdir -p $KERNEL_BASE_PACKAGE/usr/src/linux-headers-$KERNEL_RELEASE-$KERNEL_FLAVOUR
-ln -f -n -s /usr/src/linux-headers-$KERNEL_RELEASE-$KERNEL_FLAVOUR $KERNEL_MODULES_PACKAGE/lib/modules/$KERNEL_RELEASE-$KERNEL_FLAVOUR/build
+ln -f -n -s /usr/src/linux-headers-$KERNEL_RELEASE-$KERNEL_FLAVOUR $KERNEL_BASE_PACKAGE/lib/modules/$KERNEL_RELEASE-$KERNEL_FLAVOUR/build
 
 # DEBIAN control
 mkdir -p $KERNEL_BASE_PACKAGE/DEBIAN

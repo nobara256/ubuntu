@@ -77,7 +77,7 @@ jobs:
                 sudo apt update
                 # sudo apt upgrade -y
                 sudo apt install -y build-essential gcc-aarch64-linux-gnu devscripts dctrl-tools   \
-                qemu-user-static qemu-system-arm qemu-efi-aarch64 u-boot-tools binfmt-support      \
+                binfmt-support  \
                 debootstrap flex libssl-dev bc rsync kmod cpio xz-utils fakeroot parted            \
                 udev dosfstools uuid-runtime git-lfs device-tree-compiler python3 dctrl-tools      \
                 python-is-python3 fdisk bc debhelper python3-pyelftools python3-setuptools         \
@@ -93,8 +93,8 @@ jobs:
               run: |
                 cp -f overlay/rk3588.overlay.d/rk3588* linux-${{ matrix.version }}/arch/arm64/boot/dts/rockchip   # Copy rk3588 dtbs by Joshua
                 patch --strip=1 --directory=linux-${{ matrix.version }} < patcher/kernel/overlay.patch            # Patch kernel overlay loading
-                mkdir -p $GITHUB_WORKSPACE/__AARCH64__
-                cp overlay/kernel.cfg.d/kernel-${{ matrix.family }}_arm64.cfg  $GITHUB_WORKSPACE/__AARCH64__/.config
+                mkdir -p linux-${{ matrix.version }}/__AARCH64__
+                cp overlay/kernel.cfg.d/kernel-${{ matrix.family }}_arm64.cfg linux-${{ matrix.version }}/__AARCH64__/.config
               shell: bash
               env:
                 ARCH: arm64
@@ -113,10 +113,22 @@ jobs:
                 KERNEL_MAJOR_RELEASE: ${{ matrix.release }}
                 KERNEL_DEBIAN_RELEASE: ${{ matrix.drelease }}
 
-            - name: Upload packages
+            - name: Upload packages.
               uses: actions/upload-artifact@v4.5.0
               with:
-                name: kernel-opi-5-plus_${{ matrix.release }}-${{ matrix.drelease }}_arm64
+                name: kernel-${{ matrix.release }}-rockchip_${{ matrix.release }}-${{ matrix.drelease }}_arm64
                 path: kernel-*.deb
                 compression-level: 0
                 if-no-files-found: error
+
+            - name: Repack the kernel source
+              run: tar -p -c --sort=name --xattrs ./linux-${{ matrix.version }} | xz -3 -T0 > kernel-${{ matrix.release }}_arm64.tar.xz
+
+            - name: Upload kernel source package.
+              uses: actions/upload-artifact@v4.5.0
+              with:
+                name: kernel-${{ matrix.release }}_arm64
+                path: kernel-*.tar.xz
+                compression-level: 0
+                if-no-files-found: error
+
