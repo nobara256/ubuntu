@@ -67,8 +67,8 @@ set -x
 mkdir $SYSROOT
 debootstrap      \
     --arch=$ARCH \
-    --components=main,universe,multiverse,restricted   \
     --extra-suites=oracular-updates,oracular-backports \
+    --components=main,universe,multiverse,restricted   \
     --include=$(python3 ./ruler/package.py --debootstrap-include-packages) \
     --exclude=$(python3 ./ruler/package.py --debootstrap-exclude-packages) \
     oracular \
@@ -135,7 +135,7 @@ chroot $SYSROOT apt -y --no-install-recommends install ubuntu-server-rockchip u-
                                                        $(python3 ./ruler/package.py --oibaf-gpu-packages)                      \
                                                        $(python3 ./ruler/package.py --pipewire-server-packages) # This would install a bunch of packages.
 
-chroot $SYSROOT apt -y --no-install-recommends install kernel-6.13.0-opi5plus # Should pull my kernel build as the repo was added previously.
+# chroot $SYSROOT apt -y --no-install-recommends install kernel-6.13.0-opi5plus # Should pull my kernel build as the repo was added previously.
 chroot $SYSROOT apt -y upgrade
 
 
