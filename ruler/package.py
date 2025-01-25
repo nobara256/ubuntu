@@ -68,8 +68,8 @@ debootstrap_package_array = [
     "python3-pip",
     "python3-pkg-resources",
     "python3-pyelftools",
-    # "python3-s3transfer",
-    # "python3-service-identity",
+    "python3-s3transfer",
+    "python3-service-identity",
     "python3-setuptools",
     "python3-six",
     "python3-systemd",
@@ -264,60 +264,3 @@ def parse_args():
 
 if __name__ == "__main__":
     parse_args()
-
-
-# exit()
-
-def encode_array(array, xlen=4):
-
-    ylen = 1+(len(array) // xlen)
-
-    array = [k for k in map(lambda x: [ len(max(x, key=lambda y: len(y))), x ], batched(array, ylen))]
-    dump = ""
-    for y in range(ylen):
-        for x in range(xlen):
-            try:
-                # x*ylen+y
-                n, k = array[x]
-                dump += f'"{k[y]}"'.ljust(n+4)
-            except IndexError:
-                pass
-        dump += "\n"
-    return dump
-
-def decode_array(dump, xlen=4):
-
-    array = findall('"(.+)"', dump)
-
-    darray = []
-
-    ylen = (len(array) // xlen)+1
-    rlen = (len(array)  % xlen)
-
-    print(xlen, ylen, rlen)
-
-    for x in range(xlen):
-        for y in range(ylen):
-            try:
-
-                darray.append( array[x+y*xlen] )
-
-            except IndexError:
-                pass
-
-    return darray
-
-print(encode_array(debootstrap_package_array, xlen=4))
-print(encode_array(pipewire_server_package_array, xlen=4))
-print(encode_array(cross_compiler_packages, xlen=4))
-print(dump:=encode_array(server_package_array, xlen=4))
-
-
-# xz --decompress --stdout < ubuntu-image/ubuntu-24.10-preinstalled-server-arm64.img.xz | sudo dd of=/dev/nvme0n1 bs=8M iflag=fullblock oflag=direct status=progress
-
-# Package syntax
-
-# 6.12+nobara > 6.12 > 6.12.0~rc5-GITHUB_RUN_NUMBER
-
-# pipewire-server_1.2.7+nobara-2ubuntu1_arm64.deb
-
