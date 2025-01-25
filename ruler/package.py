@@ -68,7 +68,7 @@ debootstrap_package_array = [
     "python3-pip",
     "python3-pkg-resources",
     "python3-pyelftools",
-    "python3-s3transfer",
+    # "python3-s3transfer",
     "python3-service-identity",
     "python3-setuptools",
     "python3-six",
