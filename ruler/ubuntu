@@ -70,18 +70,19 @@ set -x
 mkdir $SYSROOT
 debootstrap      \
     --arch=$ARCH \
+    --foreign    \
     --components=main,universe,multiverse,restricted   \
     --extra-suites=oracular-updates,oracular-backports \
     --include=$(python3 ./ruler/package.py --debootstrap-include-packages) \
     --exclude=$(python3 ./ruler/package.py --debootstrap-exclude-packages) \
-    oracular \
+    $SUITE   \
     $SYSROOT \
-    "http://ports.ubuntu.com/ubuntu-ports"
+    "http://kambing.uu.sg/ubuntu-ports"
+    # "http://ports.ubuntu.com/ubuntu-ports"
 
 
-    # --foreign    \
 # Trigger second stage
-# chroot $SYSROOT /debootstrap/debootstrap --second-stage
+chroot $SYSROOT /debootstrap/debootstrap --second-stage
 
 
 # Apply HOSTNAME
