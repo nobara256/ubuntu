@@ -35,8 +35,6 @@ jobs:
             - name: Build a Ubuntu server system and image.
               run: |
                 sudo ./ruler/ubuntu
-                # gh run download --repo nobara256/ubuntu 12731539512
-                # mv ./ubuntu-image/*.tar.xz .
                 sudo ./ruler/image
 
               shell: bash

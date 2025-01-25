@@ -62,9 +62,6 @@ export SYSROOT="__AARCH64__"
 
 set -x
 
-
-update-binfmts --enable qemu-aarch64
-
 # Create a SYSROOT directory and populate it with debootstrap.
 mkdir $SYSROOT
 debootstrap      \
@@ -79,7 +76,6 @@ debootstrap      \
     "http://ports.ubuntu.com/ubuntu-ports"
 
 
-cp $(which qemu-aarch64-static) $SYSROOT/usr/bin
 chroot $SYSROOT /debootstrap/debootstrap --second-stage
 
 
