@@ -1,5 +1,9 @@
 #!/bin/bash
 
+deboot_log() {
+    cat AARCH64/debootstrap/debootstrap.log
+}
+
 set -eE
 trap 'echo Error: in $0 on line $LINENO' ERR
 
@@ -57,7 +61,7 @@ export LC_CTYPE=C
 export LANGUAGE=C
 export LANG=C
 
-export SYSROOT="__AARCH64__"
+export SYSROOT="AARCH64"
 
 
 set -x
@@ -66,7 +70,6 @@ set -x
 mkdir $SYSROOT
 debootstrap      \
     --arch=$ARCH \
-    --foreign    \
     --components=main,universe,multiverse,restricted   \
     --extra-suites=oracular-updates,oracular-backports \
     --include=$(python3 ./ruler/package.py --debootstrap-include-packages) \
@@ -76,8 +79,9 @@ debootstrap      \
     "http://ports.ubuntu.com/ubuntu-ports"
 
 
+    # --foreign    \
 # Trigger second stage
-chroot $SYSROOT /debootstrap/debootstrap --second-stage
+# chroot $SYSROOT /debootstrap/debootstrap --second-stage
 
 
 # Apply HOSTNAME
