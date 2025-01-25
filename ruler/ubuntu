@@ -5,7 +5,7 @@ deboot_log() {
 }
 
 set -eE
-trap 'echo Error: in $0 on line $LINENO' ERR
+trap 'echo Error: in $0 on line $LINENO; deboot_log' ERR
 
 
 attach_MOUNTPOINT() {
