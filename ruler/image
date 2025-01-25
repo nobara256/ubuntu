@@ -215,7 +215,6 @@ losetup -d "${loop}"
 
 echo -e "\nCompressing $(basename "${img}.xz")\n"
 xz -6 --force --keep --quiet --threads=0 "${img}"
-rm -f "${img}"
 
 
 echo "Bye Bye!!"

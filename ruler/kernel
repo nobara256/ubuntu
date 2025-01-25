@@ -116,7 +116,7 @@ HEREDOC
 mkdir -p $KERNEL_MODULES_PACKAGE/usr/src/linux-headers-$KERNEL_RELEASE-$KERNEL_FLAVOUR
 ln -f -n -s /usr/src/linux-headers-$KERNEL_RELEASE-$KERNEL_FLAVOUR $KERNEL_MODULES_PACKAGE/lib/modules/$KERNEL_RELEASE-$KERNEL_FLAVOUR/build
 
-# Everything in a single package
+# DEBIAN control
 mkdir -p $KERNEL_MODULES_PACKAGE/DEBIAN
 
 cat > $KERNEL_MODULES_PACKAGE/DEBIAN/control << HEREDOC
