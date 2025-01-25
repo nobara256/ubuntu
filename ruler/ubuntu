@@ -57,7 +57,7 @@ export LC_CTYPE=C
 export LANGUAGE=C
 export LANG=C
 
-export SYSROOT=aarch64
+export SYSROOT="__AARCH64__"
 
 
 set -x
@@ -67,7 +67,7 @@ set -x
 mkdir $SYSROOT
 debootstrap      \
     --arch=$ARCH \
-    --components=main,universe,multiverse,restricted   \
+    --components=main,universe,multiverse,restricted \
     --extra-suites=oracular-updates,oracular-backports \
     --include=$(python3 ./ruler/package.py --debootstrap-include-packages) \
     --exclude=$(python3 ./ruler/package.py --debootstrap-exclude-packages) \
