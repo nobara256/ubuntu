@@ -8,6 +8,19 @@ from re import findall
 # Packages provided to debootstrap --include
 # Highly required
 debootstrap_package_array = [
+    "software-properties-common"
+]
+
+
+# Packages provided to debootstrap --exclude
+# Don't install things you don't want
+debootstrap_exclude_package_array = [
+    "bluez"
+]
+
+
+# Server essential packages
+server_essential_package_array = [
     "alsa-base",
     "alsa-topology-conf",
     "alsa-ucm-conf",
@@ -78,7 +91,6 @@ debootstrap_package_array = [
     "python3.12-gdbm",
     "rfkill",
     "rsync",
-    "software-properties-common",
     "squashfs-tools",
     "ssh-import-id",
     "udev",
@@ -87,13 +99,6 @@ debootstrap_package_array = [
     "wireless-regdb",
     "wpasupplicant",
     "zerofree"
-]
-
-
-# Packages provided to debootstrap --exclude
-# Don't install things you don't want
-debootstrap_exclude_package_array = [
-    "bluez"
 ]
 
 
