@@ -54,7 +54,7 @@ $MAKE -j$(nproc) Image modules dtbs
 export KERNEL_IMAGE_PACKAGE="$PACKAGE_PATH/kernel-image-${KERNEL_PACKAGE}_${KERNEL_RELEASE}_${ARCH}"
 
 # Install dtb
-$MAKE dtbs_install INSTALL_DTBS_PATH=$KERNEL_MODULES_PACKAGE/lib/firmware/$KERNEL_RELEASE-$KERNEL_FLAVOUR/device-tree
+$MAKE dtbs_install INSTALL_DTBS_PATH=$KERNEL_IMAGE_PACKAGE/lib/firmware/$KERNEL_RELEASE-$KERNEL_FLAVOUR/device-tree
 
 # Copy the kernel Image
 mkdir -p $KERNEL_IMAGE_PACKAGE/boot
@@ -135,6 +135,7 @@ HEREDOC
 
 # Build packaage
 dpkg-deb --build $KERNEL_MODULES_PACKAGE $PACKAGE_PATH
+
 
 
 
