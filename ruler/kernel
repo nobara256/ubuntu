@@ -10,7 +10,7 @@ trap 'echo Error: in $0 on line $LINENO' ERR
 # export KERNEL_MAJOR_RELEASE="6.13.0"
 # export KERNEL_DEBIAN_RELEASE="5120"
 
-export KERNEL_REBUILD=1
+export KERNEL_REBUILD=2
 
 export KERNEL_FLAVOUR="rockchip"
 export KERNEL_PACKAGE="${KERNEL_MAJOR_RELEASE}-${KERNEL_FLAVOUR}"
@@ -98,7 +98,7 @@ HEREDOC
 
 # A simple postinstall script
 cat > $KERNEL_BASE_PACKAGE/DEBIAN/postinst << HEREDOC
-DEB_MAINT_PARAMS="$*" run-parts --report --exit-on-error --arg=$KERNEL_RELEASE-$KERNEL_FLAVOUR --arg=/boot/vmlinuz-$KERNEL_RELEASE-$KERNEL_FLAVOUR /etc/kernel/postinst.d
+DEB_MAINT_PARAMS="\$*" run-parts --report --exit-on-error --arg=$KERNEL_RELEASE-$KERNEL_FLAVOUR --arg=/boot/vmlinuz-$KERNEL_RELEASE-$KERNEL_FLAVOUR /etc/kernel/postinst.d
 HEREDOC
 
 # Assign proper permission for the script
