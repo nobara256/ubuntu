@@ -39,12 +39,12 @@ detach_MOUNTPOINT() {
 }
 
 
-export UBUNTU_RELASE_NAME="Ubuntu 24.10 (Oracular Oriole)"
-export UBUNTU_RELASE_VERSION="24.10"
+export UBUNTU_RELASE_NAME="Ubuntu 25.04 (Plucky Puffin)"
+export UBUNTU_RELASE_VERSION="25.04"
 
-export PROJECT=ubuntu-cpc
-export SUITE=oracular
-export FLAVOR=server
+export PROJECT="ubuntu-cpc"
+export SUITE="plucky"
+export FLAVOR="server"
 
 export ARCH=arm64
 export IMAGEFORMAT=none
@@ -67,11 +67,12 @@ debootstrap      \
     --arch=$ARCH \
     --components=main,universe,multiverse,restricted   \
     --include=$(python3 ./ruler/package.py --separator "," --server-essential-package-array) \
-    oracular \
+    $SUITE   \
     $SYSROOT \
-    "http://kambing.uu.sg/ubuntu-ports"
-    # "http://ports.ubuntu.com/ubuntu-ports"
+    "http://ports.ubuntu.com/ubuntu-ports"
 
+
+    # "http://kambing.uu.sg/ubuntu-ports"
 
     # --extra-suites=oracular-updates,oracular-backports causing some serious issues.
 
@@ -83,10 +84,11 @@ echo "ubuntu" > $SYSROOT/etc/hostname
 cat > $SYSROOT/etc/apt/sources.list.d/nobara.sources << HEREDOC
 Types: deb
 URIs: http://dummy.nobara.in/ubuntu/
-Suites: oracular
+Suites: plucky
 Components: nobara
 Architectures: arm64
 Trusted: yes
+Enabled: no
 By-Hash: no
 Signed-By: -----BEGIN PGP PUBLIC KEY BLOCK-----
  .

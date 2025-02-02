@@ -23,7 +23,7 @@ export AARCH64="__AARCH64__"
 export ARCH_HOST_CC="x86_64-linux-gnu-gcc"
 
 
-alias MAKE="make \
+export MAKE="make \
              ARCH=$ARCH \
              CROSS_COMPILE=aarch64-linux-gnu- \
              CC=aarch64-linux-gnu-gcc \
@@ -42,10 +42,10 @@ set -x
 
 
 # Apply .config
-MAKE olddefconfig
+$MAKE olddefconfig
 
 # Make kernel modules dtb
-MAKE -j$(nproc) Image modules dtbs
+$MAKE -j$(nproc) Image modules dtbs
 
 
 
@@ -54,7 +54,7 @@ MAKE -j$(nproc) Image modules dtbs
 export KERNEL_BASE_PACKAGE="$PACKAGE_PATH/kernel-${KERNEL_PACKAGE}_${KERNEL_RELEASE}_${ARCH}"
 
 # Install kernel
-MAKE modules_install vdso_install dtbs_install INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$KERNEL_BASE_PACKAGE INSTALL_FW_PATH=$KERNEL_BASE_PACKAGE/lib/firmware/$KERNEL_RELEASE-$KERNEL_FLAVOUR INSTALL_DTBS_PATH=$KERNEL_BASE_PACKAGE/lib/firmware/$KERNEL_RELEASE-$KERNEL_FLAVOUR/device-tree
+$MAKE modules_install vdso_install dtbs_install INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$KERNEL_BASE_PACKAGE INSTALL_FW_PATH=$KERNEL_BASE_PACKAGE/lib/firmware/$KERNEL_RELEASE-$KERNEL_FLAVOUR INSTALL_DTBS_PATH=$KERNEL_BASE_PACKAGE/lib/firmware/$KERNEL_RELEASE-$KERNEL_FLAVOUR/device-tree
 
 # Apply module blacklist
 mkdir -p $KERNEL_BASE_PACKAGE/lib/modprobe.d
