@@ -40,7 +40,7 @@ jobs:
                             elif(.version | test("^\\d+\\.\\d+\\.\\d+$")) then
                                 (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)"))
                             else
-                                (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0~\(.y)"))
+                                (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0~r\(.y)"))
                             end
                         ) |
                         .deb="\(($deb | tonumber) + ($yrun | tonumber))" |
@@ -110,13 +110,13 @@ jobs:
             - name: Upload packages.
               uses: actions/upload-artifact@v4.5.0
               with:
-                name: kernel-${{ matrix.release }}-rockchip_${{ matrix.release }}-${{ matrix.drelease }}_arm64
+                name: kernel-${{ matrix.release }}-rockchip_${{ matrix.package }}_arm64
                 path: kernel-*.deb
                 compression-level: 0
                 if-no-files-found: error
 
             - name: Repack the kernel source
-              run: tar -p -c --sort=name --xattrs ./linux-${{ matrix.version }} | xz -3 -T0 > kernel-${{ matrix.release }}_arm64.tar.xz
+              run: (cd ./linux-${{ matrix.version }} && tar -p -c --sort=name --xattrs ./*) | xz -2 -T0 > kernel-${{ matrix.release }}_arm64.tar.xz
 
             - name: Upload kernel source package.
               uses: actions/upload-artifact@v4.5.0

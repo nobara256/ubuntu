@@ -9,7 +9,7 @@ trap 'echo Error: in $0 on line $LINENO' ERR
 
 # export KERNEL_RELEASE="6.13.0"
 # export DEBIAN_RELEASE="5000"
-# export PACKAGE_RELEASE="6.13.0~5-5000"
+# export PACKAGE_RELEASE="6.13.0~r5-5000"
 
 
 export KERNEL_FLAVOUR="rockchip"
@@ -30,7 +30,7 @@ export MAKE="make \
              CC=aarch64-linux-gnu-gcc \
              HOSTCC=$ARCH_HOST_CC \
              CONFIG_DEBUG_SECTION_MISMATCH=y \
-             KERNELVERSION=$KERNEL_RELEASE-$KERNEL_FLAVOUR \
+             KERNELVERSION=$PACKAGE_RELEASE-$KERNEL_FLAVOUR \
              KBUILD_BUILD_VERSION=$DEBIAN_RELEASE \
              LOCALVERSION= \
              localver-extra= \
