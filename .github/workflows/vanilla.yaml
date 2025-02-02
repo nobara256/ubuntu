@@ -40,20 +40,13 @@ jobs:
                             elif(.version | test("^\\d+\\.\\d+\\.\\d+$")) then
                                 (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.x).\(.y)"))
                             else
-                                (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0"))
+                                (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.x).0~\(.y)"))
                             end
                         ) |
-                        .drelease=(
-                            if  (.version | test("^\\d+\\.\\d+$")) then
-                                (.version | sub("(?<x>\\d+\\.\\d+)"; "\(5000)"))
-                            elif(.version | test("^\\d+\\.\\d+\\.\\d+$")) then
-                                (.version | sub("(?<x>\\d+\\.\\d+)\\.(?<y>\\d+)"; "\(.y | tonumber + 5000)"))
-                            else
-                                (.version | sub("(?<x>\\d+\\.\\d+)-rc(?<y>\\d+)"; "\(.y | tonumber + 2000)"))
-                            end
-                        )
+                        .deb="\(($deb | tonumber) + ($yrun | tonumber))" |
+                        .package="\(.release)-\(.deb)"
                     )
-                  }' --arg yrun $GITHUB_RUN_ATTEMPT
+                  }' --arg yrun 0 --arg deb 5000
                 ) >> $GITHUB_OUTPUT
 
     # This workflow contains a single job called "kernel-build"
@@ -110,8 +103,9 @@ jobs:
                 LANG: C
                 DEBEMAIL: nobara@kurokawa
                 DEBFULLNAME: Kurokawa Nobara
-                KERNEL_MAJOR_RELEASE: ${{ matrix.release }}
-                KERNEL_DEBIAN_RELEASE: ${{ matrix.drelease }}
+                KERNEL_RELEASE: ${{ matrix.release }}
+                DEBIAN_RELEASE: ${{ matrix.deb }}
+                PACKAGE_RELEASE: ${{ matrix.package }}
 
             - name: Upload packages.
               uses: actions/upload-artifact@v4.5.0
