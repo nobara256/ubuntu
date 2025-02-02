@@ -57,7 +57,7 @@ export LC_CTYPE=C
 export LANGUAGE=C
 export LANG=C
 
-export SYSROOT="xX__AARCH64__Xx"
+export SYSROOT="__AARCH64__"
 
 
 set -x
@@ -160,7 +160,7 @@ chroot $SYSROOT ssh-keygen -A
 detach_MOUNTPOINT $SYSROOT
 
 # Package SYSROOT.
-(cd $SYSROOT &&  tar -p -c --sort=name --xattrs ./*) | xz -3 -T0 > "ubuntu-${UBUNTU_RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz"
+(cd $SYSROOT &&  tar -p -c --sort=name --xattrs ./*) | xz -2 -T0 > "ubuntu-${UBUNTU_RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz"
 
 # Delete the SYSROOT directory
 # rm -rf $SYSROOT

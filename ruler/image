@@ -192,14 +192,14 @@ else
     dd if="${MOUNTRAM}/system/usr/lib/u-boot/u-boot.itb" of="${loop}" seek=16384 conv=notrunc
 fi
 
-
+#### Required!! ####
 echo '# Update u-boot'
-chroot ${MOUNTRAM}/system /bin/bash -c "u-boot-update"
+chroot ${MOUNTRAM}/system bash -c "u-boot-update"
 
 
 #### We don't need it here as well ####
 # echo '# Update existing initramfs'
-# chroot ${MOUNTRAM}/system /bin/bash -c "update-initramfs -u"
+# chroot ${MOUNTRAM}/system bash -c "update-initramfs -u"
 
 
 sync --file-system
@@ -214,7 +214,7 @@ losetup -d "${loop}"
 
 
 echo -e "\nCompressing $(basename "${img}.xz")\n"
-xz -6 --force --keep --quiet --threads=0 "${img}"
+xz -2 --force --keep --quiet --threads=0 "${img}"
 
 
 echo "Bye Bye!!"

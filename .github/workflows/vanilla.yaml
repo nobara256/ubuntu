@@ -31,7 +31,7 @@ jobs:
                   curl -s https://www.kernel.org/releases.json | jq '{
                     include: [
                       .releases[] |
-                        select((.moniker=="mainline") or (.moniker=="stable"))
+                        select((.moniker=="stable") or (.moniker=="stable"))
                     ] | map(
                         .family=(.version | sub("(?<x>\\d+\\.\\d+)(.*)"; "\(.x)")) |
                         .release=(
