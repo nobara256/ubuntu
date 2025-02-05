@@ -14,7 +14,7 @@ server_essential_package_array = [
     "apt-utils",
     "bash-completion",
     "bc",
-    "bluez",
+    # "bluez",
     "btop",
     "cloud-init",
     "cloud-initramfs-growroot",
@@ -191,7 +191,7 @@ cross_compiler_packages = [
 
 
 # Extra ackages on server
-server_package_array = [
+server_extra_package_array = [
     "android-sdk-platform-tools",
     "aria2",
     "autofs",
@@ -234,23 +234,17 @@ def parse_args(arg_array):
 
     package_dump_array = []
 
-    if "--debootstrap-include-packages" in argv:
-        package_dump_array += debootstrap_package_array
-
-    if "--debootstrap-exclude-packages" in argv:
-        package_dump_array += debootstrap_exclude_package_array
-
-    if "--server-essential-package-array" in argv:
+    if "--server-essential-packages" in argv:
         package_dump_array += server_essential_package_array
 
-    if "--oibaf-gpu-packages" in argv:
+    if "--gpu-packages" in argv:
         package_dump_array += gpu_package_array
 
     if "--pipewire-server-packages" in argv:
         package_dump_array += pipewire_server_package_array
 
-    if "--additional-server-packages" in argv:
-        package_dump_array += server_package_array
+    if "--server-extra-packages" in argv:
+        package_dump_array += server_extra_package_array
 
     print(separator.join(package_dump_array))
 
