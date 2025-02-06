@@ -93,7 +93,7 @@ Architecture: $ARCH
 Depends: kmod, linux-base (>= 4.5ubuntu1~16.04.1)
 Homepage: https://kernel.org/
 Rules-Requires-Root: no
-Maintainer: $DEBFULLNAME <$DEBEMAIL>
+Maintainer: Paper <kernel@papercube>
 Description: A minimal kernel package for ubuntu-server aarch64 running on opi-5-plus.
 HEREDOC
 
