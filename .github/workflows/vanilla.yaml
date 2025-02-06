@@ -110,7 +110,7 @@ jobs:
             - name: Upload packages.
               uses: actions/upload-artifact@v4.5.0
               with:
-                name: kernel-${{ matrix.release }}-rockchip_${{ matrix.package }}_arm64
+                name: kernel-${{ matrix.family }}-rockchip_${{ matrix.package }}_arm64
                 path: kernel-*.deb
                 compression-level: 0
                 if-no-files-found: error
