@@ -21,9 +21,15 @@ jobs:
 
             - name: Trying out.
               run: |
+                dpkg-deb --version
                 mkdir -p package-0.1_0.1.0~r5-1102_arm64/DEBIAN
-                echo "Package: package-0.1" >> package-0.1_0.1.0~r5-1102_arm64/DEBIAN/control
-                echo "Version: 0.1.0~r5-1102" >> package-0.1_0.1.0~r5-1102_arm64/DEBIAN/control
+                (
+                  echo "Package: package-0.1"
+                  echo "Version: 0.1.0~r5-1102"
+                  echo "Architecture: arm64"
+                  echo "Maintainer: Paper <ubuntu@paper>"
+                  echo "Description: Paper Package"
+                ) > package-0.1_0.1.0~r5-1102_arm64/DEBIAN/control
                 dpkg-deb --compression=gzip --build package-0.1_0.1.0~r5-1102_arm64 package-0.1_0.1.0~r5-1102_arm64_gzip.deb
                 dpkg-deb --compression=xz --build package-0.1_0.1.0~r5-1102_arm64 package-0.1_0.1.0~r5-1102_arm64_xz.deb
 
