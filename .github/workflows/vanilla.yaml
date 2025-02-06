@@ -84,10 +84,10 @@ jobs:
 
             - name: Patching kernel source package.
               run: |
-                cp -f overlay/rk3588.overlay.d/rk3588* linux-${{ matrix.version }}/arch/arm64/boot/dts/rockchip   # Copy rk3588 dtbs by Joshua
+                # cp -f overlay/rk3588.overlay.d/rk3588* linux-${{ matrix.version }}/arch/arm64/boot/dts/rockchip   # Copy rk3588 dtbs by Joshua
                 patch --strip=1 --directory=linux-${{ matrix.version }} < patcher/kernel/overlay.patch            # Patch kernel overlay loading
                 mkdir -p linux-${{ matrix.version }}/__AARCH64__
-                cp overlay/kernel.cfg.d/kernel-${{ matrix.family }}_arm64.cfg linux-${{ matrix.version }}/__AARCH64__/.config
+                cp overlay/${{ matrix.family }}_arm64 linux-${{ matrix.version }}/__AARCH64__/.config
               shell: bash
               env:
                 ARCH: arm64
