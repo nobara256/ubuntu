@@ -30,8 +30,8 @@ jobs:
                   echo "Maintainer: Paper <ubuntu@paper>"
                   echo "Description: Paper Package"
                 ) > package-0.1_0.1.0~r5-1102_arm64/DEBIAN/control
-                dpkg-deb --compression=gzip --build package-0.1_0.1.0~r5-1102_arm64 package-0.1_0.1.0~r5-1102_arm64_gzip.deb
-                dpkg-deb --compression=xz --build package-0.1_0.1.0~r5-1102_arm64 package-0.1_0.1.0~r5-1102_arm64_xz.deb
+                dpkg-deb -Z gzip -b package-0.1_0.1.0~r5-1102_arm64 package-0.1_0.1.0~r5-1102_arm64_gzip.deb
+                dpkg-deb -Z xz -b package-0.1_0.1.0~r5-1102_arm64 package-0.1_0.1.0~r5-1102_arm64_xz.deb
 
             - name: Upload package
               uses: actions/upload-artifact@v4.5.0
