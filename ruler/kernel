@@ -7,13 +7,13 @@ trap 'echo Error: in $0 on line $LINENO' ERR
 # export DEBFULLNAME="Nobara Kurokawa"
 # export DEBEMAIL="nobara@kurokawa"
 
-# export KERNEL_RELEASE="6.13.0"
+# export KERNEL_RELEASE="6.13.0~r5"
 # export DEBIAN_RELEASE="5000"
 # export PACKAGE_RELEASE="6.13.0~r5-5000"
 
 
 export KERNEL_FLAVOUR="rockchip"
-export DEBIAN_PACKAGE="kernel-${KERNEL_RELEASE}-${KERNEL_FLAVOUR}"
+export DEBIAN_PACKAGE="kernel-${KERNEL_RELEASE%%~*}-${KERNEL_FLAVOUR}"
 #"${KERNEL_MAJOR_RELEASE}-${DEBIAN_RELEASE}.${KERNEL_REBUILD}"
 
 export PACKAGE_PATH=$1
