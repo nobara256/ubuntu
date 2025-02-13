@@ -192,14 +192,29 @@ else
     dd if="${MOUNTRAM}/system/usr/lib/u-boot/u-boot.itb" of="${loop}" seek=16384 conv=notrunc
 fi
 
-#### Required!! ####
+
+attach_MOUNTPOINT ${MOUNTRAM}/system
+
+
+# Adding my package repo
+curl --silent --url "http://dummy.nobara.in/ubuntu/paper.sources" > ${MOUNTRAM}/system/etc/apt/sources.list.d/paper.sources
+
+chroot ${MOUNTRAM}/system apt update
+chroot ${MOUNTRAM}/system apt -y --no-install-recommends install kernel-6.14.0-rockchip # Should pull my kernel builds.
+chroot ${MOUNTRAM}/system apt -y upgrade
+
+
+#### Required?? ####
 echo '# Update u-boot'
 chroot ${MOUNTRAM}/system bash -c "u-boot-update"
 
 
-#### We need this to work ####
+#### Very much reaquired?? ####
 echo '# Update existing initramfs'
 chroot ${MOUNTRAM}/system bash -c "update-initramfs -c -k all"
+
+
+detach_MOUNTPOINT ${MOUNTRAM}/system
 
 
 sync --file-system

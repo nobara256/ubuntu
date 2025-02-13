@@ -81,10 +81,6 @@ debootstrap      \
 echo "ubuntu" > $SYSROOT/etc/hostname
 
 
-# Adding my package repo
-curl --silent --url "http://dummy.nobara.in/ubuntu/paper.sources" > $SYSROOT/etc/apt/sources.list.d/paper.sources
-
-
 # Attach SYSROOT.
 attach_MOUNTPOINT $SYSROOT
 
@@ -98,9 +94,6 @@ chroot $SYSROOT apt update
 chroot $SYSROOT apt -y --no-install-recommends install ubuntu-server-rockchip u-boot-orangepi-5-plus u-boot-tools u-boot-menu \
                                                        $(python3 ./ruler/package.py --separator " " --gpu-packages --server-extra-packages --pipewire-server-packages)
                                                        # This would install a bunch of packages.
-
-chroot $SYSROOT apt -y --no-install-recommends install kernel-6.14.0-rockchip # Should pull my kernel build as the repo was added previously.
-chroot $SYSROOT apt -y upgrade
 
 
 #### Here Be Monkeys ####
