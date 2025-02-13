@@ -197,9 +197,9 @@ echo '# Update u-boot'
 chroot ${MOUNTRAM}/system bash -c "u-boot-update"
 
 
-#### We don't need it here as well ####
-# echo '# Update existing initramfs'
-# chroot ${MOUNTRAM}/system bash -c "update-initramfs -u"
+#### We need this to work ####
+echo '# Update existing initramfs'
+chroot ${MOUNTRAM}/system bash -c "update-initramfs -u"
 
 
 sync --file-system
