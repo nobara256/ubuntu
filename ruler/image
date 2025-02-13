@@ -69,12 +69,12 @@ wait_loopdev() {
 }
 
 
-export UBUNTU_RELASE_NAME="Ubuntu 24.10 (Oracular Oriole)"
-export UBUNTU_RELASE_VERSION="24.10"
+export UBUNTU_RELASE_NAME="Ubuntu 25.04 (Plucky Puffin)"
+export UBUNTU_RELASE_VERSION="25.04"
 
-export PROJECT=ubuntu-cpc
-export SUITE=oracular
-export FLAVOR=server
+export PROJECT="ubuntu-cpc"
+export SUITE="plucky"
+export FLAVOR="server"
 
 export ARCH=arm64
 export IMAGEFORMAT=none
@@ -87,10 +87,10 @@ export LC_CTYPE=C
 export LANGUAGE=C
 export LANG=C
 
-export SYSROOT=aarch64
 
 
 
+set -x
 
 echo '# Create an empty RAMDISK image'
 img="ubuntu-${UBUNTU_RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.img"
@@ -216,6 +216,7 @@ losetup -d "${loop}"
 echo -e "\nCompressing $(basename "${img}.xz")\n"
 xz -2 --force --keep --quiet --threads=0 "${img}"
 
+set +x
 
 echo "Bye Bye!!"
 
