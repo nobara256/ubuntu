@@ -199,7 +199,7 @@ chroot ${MOUNTRAM}/system bash -c "u-boot-update"
 
 #### We need this to work ####
 echo '# Update existing initramfs'
-chroot ${MOUNTRAM}/system bash -c "update-initramfs -u"
+chroot ${MOUNTRAM}/system bash -c "update-initramfs -c -k all"
 
 
 sync --file-system
