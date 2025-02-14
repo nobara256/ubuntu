@@ -204,14 +204,14 @@ chroot ${MOUNTRAM}/system apt -y --no-install-recommends install kernel-6.14.0-r
 chroot ${MOUNTRAM}/system apt -y upgrade
 
 
-#### Required?? ####
-echo '# Update u-boot'
-chroot ${MOUNTRAM}/system bash -c "u-boot-update"
+# #### Required?? ####
+# echo '# Update u-boot'
+# chroot ${MOUNTRAM}/system bash -c "u-boot-update"
 
 
-#### Very much reaquired?? ####
-echo '# Update existing initramfs'
-chroot ${MOUNTRAM}/system bash -c "update-initramfs -c -k all"
+# #### Very much reaquired?? ####
+# echo '# Update existing initramfs'
+# chroot ${MOUNTRAM}/system bash -c "update-initramfs -c -k all"
 
 
 detach_MOUNTPOINT ${MOUNTRAM}/system
