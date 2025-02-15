@@ -74,7 +74,7 @@ debootstrap      \
 
     # "http://kambing.uu.sg/ubuntu-ports"
 
-    # --extra-suites=oracular-updates,oracular-backports causing some serious issues.
+    # --extra-suites=
 
 
 # Apply HOSTNAME
