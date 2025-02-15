@@ -140,11 +140,14 @@ chroot $SYSROOT apt clean
 chroot $SYSROOT ssh-keygen -A
 
 # Create two virtual environments for Python
-chroot $SYSROOT python -m venv --system-site-packages /opt/python/global
-chroot $SYSROOT python -m venv /opt/python/paper
+chroot $SYSROOT python -m venv --system-site-packages /opt/virtualenv/default
+chroot $SYSROOT python -m venv /opt/virtualenv/paper
+
+# Create a directory for python packages
+chroot $SYSROOT mkdir -p /opt/packages/python3
 
 # Allow all the users to install and modify packages in these environments
-chroot $SYSROOT chmod -R 777 /opt/python/global /opt/python/paper
+chroot $SYSROOT chmod -R 777 /opt/virtualenv/default /opt/virtualenv/paper /opt/packages/python3
 
 
 #### We should be done by now ####
